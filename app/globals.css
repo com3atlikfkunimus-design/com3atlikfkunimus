@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ── */
+:root {
+  --lime: #a3e635;
+  --lime-dark: #84cc16;
+  --lime-bright: #bef264;
+  --bg-deep: #0f172a;
+  --bg-card: #1e293b;
+  --border-subtle: rgba(148, 163, 184, 0.15);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+/* ── Base Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-deep);
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3e635;
+}
+
+/* ── Selection Color ── */
+::selection {
+  background-color: rgba(163, 230, 53, 0.25);
+  color: #ffffff;
+}
+
+/* ── Focus Visible Ring ── */
+:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Utility: Toast slide animation ── */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── Utility: Pulse glow for logo ring ── */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
