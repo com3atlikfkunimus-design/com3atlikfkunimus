@@ -86,7 +86,7 @@ export default function PreTestPage() {
           </p>
 
           {/* Clean Light Card Summary */}
-          <div className="bg-white border border-[#e2e8f0] rounded-lg p-8 text-left mb-8 shadow-none space-y-6">
+          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-8 text-left mb-8 shadow-premium space-y-6 relative z-10 hover-lift transition-all duration-300">
             <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ringkasan Data</h2>
 
             <div className="space-y-3.5 text-sm text-slate-600">
@@ -124,10 +124,10 @@ export default function PreTestPage() {
             id="goto-sesi1-btn"
             onClick={() => router.push('/sesi-1')}
             className="
-              w-full sm:w-auto px-8 py-3.5 bg-slate-900 text-white rounded-md
-              font-medium text-xs tracking-wider uppercase
-              hover:bg-slate-800 active:bg-slate-950
-              transition-all duration-150 cursor-pointer
+              w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white rounded-lg
+              font-bold text-xs tracking-wider uppercase hover-lift shadow-md
+              hover:from-[#1d4ed8] hover:to-[#0284c7] active:opacity-90
+              transition-all duration-200 cursor-pointer
               flex items-center justify-center gap-2 mx-auto
             "
           >

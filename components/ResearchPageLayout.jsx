@@ -11,13 +11,25 @@
  *   - title          : judul section (optional, ditampilkan di nav)
  *   - lightTheme     : boolean, jika true maka render tema putih minimalis
  */
-export default function ResearchPageLayout({ children, researcher, onLogout, title, lightTheme = false }) {
+export default function ResearchPageLayout({ children, researcher, onLogout, title, lightTheme = false, wide = false }) {
   if (lightTheme) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-800 relative overflow-hidden font-sans">
-        {/* Simple Top Navigation Bar (Light Theme) */}
-        <nav className="relative z-10 bg-white border-b border-slate-200">
-          <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Ambient light glow */}
+        <div
+          className="absolute -top-32 -right-32 w-[30rem] h-[30rem] rounded-full opacity-40 blur-[80px] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #e0f2fe 0%, transparent 70%)' }}
+          aria-hidden="true"
+        />
+        <div
+          className="absolute top-1/3 -left-32 w-96 h-96 rounded-full opacity-30 blur-[80px] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #f0fdf4 0%, transparent 70%)' }}
+          aria-hidden="true"
+        />
+
+        {/* Premium Glass Navigation Bar */}
+        <nav className="relative z-40 glass-panel border-b border-white/50 sticky top-0 transition-all shadow-sm">
+          <div className={`${wide ? 'max-w-6xl' : 'max-w-3xl'} mx-auto px-6 py-4 flex items-center justify-between`}>
             {/* Branding */}
             <div className="flex items-center gap-2.5">
               <div
@@ -57,7 +69,7 @@ export default function ResearchPageLayout({ children, researcher, onLogout, tit
         </nav>
 
         {/* Main Content */}
-        <main className="relative z-10 max-w-3xl mx-auto px-6 py-10">
+        <main className={`relative z-10 ${wide ? 'max-w-6xl' : 'max-w-3xl'} mx-auto px-6 py-10`}>
           {children}
         </main>
       </div>

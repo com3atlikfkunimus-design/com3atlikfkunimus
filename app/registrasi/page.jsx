@@ -140,7 +140,7 @@ export default function RegistrasiPage() {
     outline-none rounded-none transition-colors duration-200
     ${errors[field]
       ? 'border-red-400 focus:border-red-500'
-      : 'border-slate-200 focus:border-slate-800'
+      : 'border-slate-200 focus:border-[#2563eb]'
     }
     disabled:opacity-50
   `;
@@ -173,7 +173,7 @@ export default function RegistrasiPage() {
         </div>
 
         {/* Clean Light Card (1px border, no heavy shadow) */}
-        <form onSubmit={handleSubmit} noValidate className="bg-white border border-[#e2e8f0] rounded-lg p-8 md:p-10 shadow-none">
+        <form onSubmit={handleSubmit} noValidate className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-8 md:p-10 shadow-premium relative z-10">
           <div className="space-y-8">
             
             {/* Nama Lengkap */}
@@ -304,10 +304,10 @@ export default function RegistrasiPage() {
                 id="registrasi-submit-btn"
                 type="submit"
                 className="
-                  px-6 py-3 bg-slate-900 text-white rounded-md
-                  font-medium text-xs tracking-wider uppercase
-                  hover:bg-slate-800 active:bg-slate-950
-                  transition-all duration-150 cursor-pointer
+                  px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white rounded-lg
+                  font-bold text-xs tracking-wider uppercase hover-lift shadow-md
+                  hover:from-[#1d4ed8] hover:to-[#0284c7] active:opacity-90
+                  transition-all duration-200 cursor-pointer
                   flex items-center justify-center gap-2
                 "
               >

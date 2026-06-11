@@ -149,7 +149,7 @@ export default function ABQQuestionnaire({
           {ABQ_QUESTIONS.map((q, idx) => (
             <div
               key={q.id}
-              className="bg-white border border-[#e2e8f0] rounded-lg p-6 md:p-8 shadow-none space-y-5"
+              className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 md:p-8 shadow-premium space-y-5 hover-lift transition-all duration-200 relative z-10"
             >
               {/* Question Text */}
               <div className="space-y-1">
@@ -196,11 +196,11 @@ export default function ABQQuestionnaire({
             type="submit"
             disabled={!allAnswered || isSaving}
             className={`
-              px-8 py-3.5 rounded-md font-bold text-xs uppercase tracking-wider cursor-pointer
-              transition-all duration-150 flex items-center justify-center gap-2 w-full sm:w-auto
+              px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider cursor-pointer hover-lift shadow-md
+              transition-all duration-200 flex items-center justify-center gap-2 w-full sm:w-auto
               ${allAnswered && !isSaving
-                ? 'bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-950'
-                : 'bg-slate-100 text-slate-300 border border-slate-200/60 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1d4ed8] hover:to-[#0284c7] active:opacity-90 text-white'
+                : 'bg-slate-100 text-slate-300 border border-slate-200/60 cursor-not-allowed shadow-none !transform-none hover:!shadow-none'
               }
             `}
           >

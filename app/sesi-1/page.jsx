@@ -688,29 +688,28 @@ export default function Sesi1Page() {
                   <label className="block text-[10px] font-bold text-slate-800 uppercase tracking-wider">
                     Link Upload GDrive/YT
                   </label>
-                  {(currentTestState.hasVideo || isTimeUp) && (
+                  {(currentTestState.hasVideo || isTimeUp) ? (
                     <span className="text-[8px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
                       Wajib (Backup)
+                    </span>
+                  ) : (
+                    <span className="text-[8px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      Opsional / Tautan
                     </span>
                   )}
                 </div>
                 <p className="text-[9px] text-slate-400 leading-normal mb-3">
-                  Masukkan link Google Drive / YouTube jika kamera diblokir browser, pengerjaan melebihi 3 menit, atau rekaman terhenti otomatis pada limit 20 detik.
+                  Anda bebas memilih: rekam video langsung menggunakan kamera di sebelah kiri, atau ketik tautan videonya di sini.
                 </p>
                 <input
                   type="url"
                   placeholder="https://drive.google.com/... atau https://youtube.com/..."
                   value={currentTestState.link}
                   onChange={(e) => handleStateChange('link', e.target.value)}
-                  disabled={!currentTestState.hasVideo && !isTimeUp}
-                  className={`
+                  className="
                     w-full py-2 bg-transparent text-xs text-[#0f172a] placeholder-slate-300 outline-none rounded-none
-                    border-b transition-colors duration-200
-                    ${(currentTestState.hasVideo || isTimeUp)
-                      ? 'border-slate-200 focus:border-[#2563eb]'
-                      : 'border-slate-100 opacity-40 cursor-not-allowed'
-                    }
-                  `}
+                    border-b border-slate-200 focus:border-[#2563eb] transition-colors duration-200
+                  "
                 />
               </div>
 

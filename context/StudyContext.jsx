@@ -64,11 +64,7 @@ export function StudyProvider({ children }) {
         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-id');
 
       if (!isConfigured) {
-        // --- Fallback Offline Mode: Supabase unconfigured ---
-        const mockId = 'athlete-off-' + Math.random().toString(36).substring(2, 9);
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        setSavedAthleteId(mockId);
-        return mockId;
+        throw new Error('Koneksi Database Gagal: Konfigurasi Supabase belum disetel.');
       }
 
       const { data, error } = await supabase
@@ -93,11 +89,8 @@ export function StudyProvider({ children }) {
       setSavedAthleteId(data.id);
       return data.id;
     } catch (err) {
-      console.warn('[StudyContext] Supabase insert failed, falling back to offline simulated save:', err.message || err);
-      // Fallback offline mode on network fail / Failed to fetch
-      const mockId = 'athlete-net-' + Math.random().toString(36).substring(2, 9);
-      setSavedAthleteId(mockId);
-      return mockId;
+      console.error('[StudyContext] Supabase insert failed:', err.message || err);
+      throw new Error(err.message || 'Gagal menyimpan ke database. Pastikan koneksi internet Anda stabil.');
     } finally {
       setIsSaving(false);
     }

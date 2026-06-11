@@ -80,7 +80,7 @@ export default function InformedConsentPage() {
 
       {isAccessBlocked ? (
         /* ── Blokir Akses Pengujian (Blocked State) ── */
-        <div className="max-w-xl mx-auto bg-white border border-[#e2e8f0] rounded-lg p-10 text-center space-y-6">
+        <div className="max-w-xl mx-auto glass-panel shadow-premium border border-[#e2e8f0]/80 rounded-2xl p-10 text-center space-y-6 relative z-10">
           <div className="w-12 h-12 rounded-full border-2 border-red-500 flex items-center justify-center mx-auto text-red-500">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -95,7 +95,7 @@ export default function InformedConsentPage() {
           <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={handleResetAccess}
-              className="px-6 py-2.5 bg-[#2563eb] text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-md hover-lift transition-all cursor-pointer"
             >
               Ulas Kembali Lembar Pernyataan
             </button>
@@ -103,11 +103,11 @@ export default function InformedConsentPage() {
         </div>
       ) : (
         /* ── Lembar Pernyataan Card ── */
-        <div className="max-w-2xl mx-auto bg-white border border-[#e2e8f0] rounded-lg overflow-hidden shadow-none">
+        <div className="max-w-2xl mx-auto glass-panel shadow-premium border border-[#e2e8f0]/80 rounded-2xl overflow-hidden relative z-10">
           {/* Header Card */}
-          <div className="px-8 py-6 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded bg-[#2563eb] text-white flex items-center justify-center flex-shrink-0">
+          <div className="px-8 py-6 border-b border-slate-100/50 bg-white/40">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] shadow-sm text-white flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                 </svg>
@@ -235,7 +235,7 @@ export default function InformedConsentPage() {
                 id="consent-decline-btn"
                 type="button"
                 onClick={handleDecline}
-                className="flex-1 sm:flex-none px-4 py-2.5 border border-slate-200 text-red-500 hover:bg-slate-50 transition-colors rounded text-xs font-bold uppercase tracking-wider cursor-pointer"
+                className="flex-1 sm:flex-none px-5 py-2.5 border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer hover-lift"
               >
                 Tidak Setuju
               </button>
@@ -245,12 +245,12 @@ export default function InformedConsentPage() {
                 disabled={!hasScrolledToBottom || !isChecked}
                 onClick={handleAgree}
                 className="
-                  flex-1 sm:flex-none px-6 py-2.5 bg-slate-900 text-white rounded
-                  font-bold text-xs uppercase tracking-wider
-                  hover:bg-slate-800 active:bg-slate-950
-                  disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed
-                  transition-all duration-150 cursor-pointer
-                  flex items-center justify-center gap-1.5
+                  flex-1 sm:flex-none px-8 py-2.5 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white rounded-lg
+                  font-bold text-xs uppercase tracking-wider hover-lift shadow-md
+                  hover:from-[#1d4ed8] hover:to-[#0284c7] active:opacity-90
+                  disabled:bg-none disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed
+                  transition-all duration-200 cursor-pointer
+                  flex items-center justify-center gap-2
                 "
               >
                 Saya Setuju

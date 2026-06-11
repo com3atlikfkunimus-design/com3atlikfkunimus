@@ -197,7 +197,7 @@ export default function LoginForm() {
       )}
 
       {/* Centered Login Card */}
-      <div className="w-full bg-white border border-[#e2e8f0] rounded-lg p-8 md:p-10 shadow-none">
+      <div className="w-full glass-panel shadow-premium border border-[#e2e8f0]/80 rounded-2xl p-8 md:p-10 relative z-10">
         
         {/* Elegant UNIMUS Medical Logo */}
         <div className="flex flex-col items-center mb-8">
@@ -315,11 +315,11 @@ export default function LoginForm() {
             type="submit"
             disabled={isDisabled}
             className="
-              w-full py-3 bg-slate-900 text-white rounded-md
-              font-semibold text-xs tracking-wider uppercase
+              w-full py-3 bg-slate-900 text-white rounded-lg
+              font-bold text-xs tracking-wider uppercase hover-lift shadow-md
               hover:bg-slate-800 active:bg-slate-950
-              disabled:opacity-60 disabled:cursor-not-allowed
-              transition-all duration-150 cursor-pointer
+              disabled:opacity-60 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed
+              transition-all duration-200 cursor-pointer
               flex items-center justify-center gap-2
               mt-6
             "
@@ -364,8 +364,8 @@ export default function LoginForm() {
           <button
             onClick={() => router.push('/informed-consent')}
             className="
-              w-full py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded font-bold text-[9px] uppercase tracking-wider
-              transition-all duration-150 cursor-pointer shadow-sm flex items-center justify-center gap-1.5
+              w-full py-2.5 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1d4ed8] hover:to-[#0284c7] text-white rounded-lg font-bold text-[9px] uppercase tracking-wider hover-lift
+              transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-1.5
             "
           >
             🧪 Mulai Pengujian Atlet

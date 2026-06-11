@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
   const { researcher, isHydrated, logout } = useAuth();
   const { setAthleteProfile } = useStudy();
   
-  const [athletes, setAthletes] = useState(CLINICAL_ATHLETES);
+  const [athletes, setAthletes] = useState([]);
   const [researchersList, setResearchersList] = useState([]);
   
   // Dashboard Sub-menus state
@@ -78,6 +78,10 @@ export default function AdminDashboardPage() {
   const [toast, setToast] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [activeConfigTab, setActiveConfigTab] = useState('sprint');
+
+  // Interactive Walkthrough Tour state variables
+  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [tourStep, setTourStep] = useState(1);
 
   // Dynamic test materials & rules configurations
   const [testConfigs, setTestConfigs] = useState({
@@ -138,6 +142,86 @@ export default function AdminDashboardPage() {
       }
     } catch (e) {}
   }, []);
+
+  // Check if first-time user for walkthrough tour
+  useEffect(() => {
+    if (isHydrated && researcher) {
+      const tourCompleted = localStorage.getItem('com7_dashboard_tour_completed');
+      if (!tourCompleted) {
+        // Trigger tour with delay for nice entrance after hydration/redirect
+        const timer = setTimeout(() => {
+          setIsTourOpen(true);
+          setTourStep(1);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isHydrated, researcher]);
+
+  // Handlers for Walkthrough Tour
+  const handleNextTourStep = () => {
+    const nextStep = tourStep + 1;
+    
+    // Auto switch menu tabs to guide the user visually!
+    if (nextStep === 2) {
+      setCurrentMenu('analytics');
+    } else if (nextStep === 3) {
+      setCurrentMenu('database');
+    } else if (nextStep === 4) {
+      setCurrentMenu('config');
+    } else if (nextStep === 5) {
+      setCurrentMenu('analytics'); // Show excel export in header
+    }
+
+    if (nextStep > 5) {
+      handleCompleteTour();
+    } else {
+      setTourStep(nextStep);
+    }
+  };
+
+  const handlePrevTourStep = () => {
+    const prevStep = tourStep - 1;
+
+    // Auto switch menu tabs in reverse
+    if (prevStep === 2) {
+      setCurrentMenu('analytics');
+    } else if (prevStep === 3) {
+      setCurrentMenu('database');
+    } else if (prevStep === 4) {
+      setCurrentMenu('config');
+    }
+
+    if (prevStep >= 1) {
+      setTourStep(prevStep);
+    }
+  };
+
+  const handleCompleteTour = () => {
+    setIsTourOpen(false);
+    localStorage.setItem('com7_dashboard_tour_completed', 'true');
+    setToast({
+      message: 'Tutorial selesai! Selamat menggunakan Dashboard Klinis COM 7 UNIMUS.',
+      type: 'success',
+      key: Date.now(),
+    });
+  };
+
+  const handleSkipTour = () => {
+    setIsTourOpen(false);
+    localStorage.setItem('com7_dashboard_tour_completed', 'true');
+    setToast({
+      message: 'Panduan dilewati. Anda dapat membuka panduan kembali kapan saja.',
+      type: 'info',
+      key: Date.now(),
+    });
+  };
+
+  const handleRestartTour = () => {
+    setTourStep(1);
+    setCurrentMenu('analytics');
+    setIsTourOpen(true);
+  };
 
   // Form states
   const [newResearcher, setNewResearcher] = useState({ name: '', username: '', password: '' });
@@ -214,10 +298,14 @@ export default function AdminDashboardPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
+      // Fetch Supabase athletes (Only Supabase, NO LOCAL STORAGE)
+      let allData = [];
       if (data && data.length > 0) {
-        const merged = data.map((db, idx) => {
-          const preset = CLINICAL_ATHLETES[idx % CLINICAL_ATHLETES.length];
-          
+        allData = [...data];
+      }
+
+      if (allData.length > 0) {
+        const merged = allData.map((db) => {
           let localSesi1 = {};
           try {
             if (typeof window !== 'undefined') {
@@ -234,46 +322,48 @@ export default function AdminDashboardPage() {
             }
           } catch (e) {}
 
-          const sPre = localSesi1.sprint ? parseFloat(localSesi1.sprint) : (db.sprint_pre || preset.sprint_pre);
-          const sPost = localSesi2.sprint ? parseFloat(localSesi2.sprint) : (db.sprint_post || preset.sprint_post);
-          const cPre = localSesi1.cmj ? parseFloat(localSesi1.cmj) : (db.cmj_pre || preset.cmj_pre);
-          const cPost = localSesi2.cmj ? parseFloat(localSesi2.cmj) : (db.cmj_post || preset.cmj_post);
-          const hPre = localSesi1.hop ? parseFloat(localSesi1.hop) : (db.hop_pre || preset.hop_pre);
-          const hPost = localSesi2.hop ? parseFloat(localSesi2.hop) : (db.hop_post || preset.hop_post);
+          const sPre = localSesi1.sprint ? parseFloat(localSesi1.sprint) : (db.sprint_pre || 0);
+          const sPost = localSesi2.sprint ? parseFloat(localSesi2.sprint) : (db.sprint_post || 0);
+          const cPre = localSesi1.cmj ? parseFloat(localSesi1.cmj) : (db.cmj_pre || 0);
+          const cPost = localSesi2.cmj ? parseFloat(localSesi2.cmj) : (db.cmj_post || 0);
+          const hPre = localSesi1.hop ? parseFloat(localSesi1.hop) : (db.hop_pre || 0);
+          const hPost = localSesi2.hop ? parseFloat(localSesi2.hop) : (db.hop_post || 0);
           
           return {
             id: db.id,
             name: db.name,
-            researcher: db.researchers?.name || researcher.name || 'Pemeriksa Terdaftar',
+            researcher: db.researchers?.name || db.researcher_name || researcher.name || 'Pemeriksa Terdaftar',
             age: db.age,
             weight: db.weight,
             height: db.height,
             bmi: db.bmi,
             bmi_category: db.bmi_category,
-            abq_pre: db.abq_score || preset.abq_pre,
-            abq_post: localSesi2.abqPostScore ? parseInt(localSesi2.abqPostScore, 10) : (db.abq_post_score || preset.abq_post),
+            abq_pre: db.abq_score || 0,
+            abq_post: localSesi2.abqPostScore ? parseInt(localSesi2.abqPostScore, 10) : (db.abq_post_score || 0),
             sprint_pre: sPre,
             sprint_post: sPost,
             cmj_pre: cPre,
             cmj_post: cPost,
             hop_pre: hPre,
             hop_post: hPost,
-            video: localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || preset.video,
+            video: localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || null,
           };
         });
         
         const seen = new Set();
         const clean = [];
-        [...merged, ...CLINICAL_ATHLETES].forEach((x) => {
+        merged.forEach((x) => {
           if (!seen.has(x.name)) {
             seen.add(x.name);
             clean.push(x);
           }
         });
         setAthletes(clean);
+      } else {
+        setAthletes([]);
       }
     } catch (err) {
-      console.warn('[Supabase] Falling back to high-fidelity clinical mockup.', err);
+      console.warn('[Supabase] Failed to fetch, maintaining current state.', err);
     }
   };
 
@@ -334,6 +424,27 @@ export default function AdminDashboardPage() {
     setNewResearcher({ name: '', username: '', password: '' });
     setIsSubmitting(false);
     fetchResearchers(); // Refresh list peneliti terdaftar
+  };
+
+  // Delete athlete handler
+  const handleDeleteAthlete = async (id) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus data atlet ini secara permanen?")) {
+      return;
+    }
+
+    // Try deleting from Supabase
+    try {
+      const { error } = await supabase.from('athletes').delete().eq('id', id);
+      if (error) console.warn('[Supabase] Delete failed:', error);
+    } catch (e) {}
+
+    // Update State
+    setAthletes(prev => prev.filter(a => a.id !== id));
+    setToast({
+      message: 'Data atlet berhasil dihapus.',
+      type: 'success',
+      key: Date.now(),
+    });
   };
 
   // Athlete creation handler from dashboard
@@ -643,6 +754,7 @@ export default function AdminDashboardPage() {
       }}
       title="Clinical Admin Dashboard"
       lightTheme={true}
+      wide={true}
     >
       {toast && (
         <Toast
@@ -685,18 +797,32 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <button
-          onClick={handleExportCSV}
-          className="
-            w-full md:w-auto px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-md
-            text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 shadow-sm
-          "
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-          </svg>
-          Ekspor Database Excel
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+          <button
+            onClick={handleRestartTour}
+            type="button"
+            className="
+              px-4 py-3 glass-panel border border-[#2563eb]/30 text-[#2563eb] hover:bg-[#2563eb]/5 hover:border-[#2563eb] rounded-lg
+              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-sm hover-lift
+            "
+          >
+            <span className="animate-pulse">💡</span> Panduan Penggunaan
+          </button>
+          
+          <button
+            onClick={handleExportCSV}
+            type="button"
+            className="
+              px-5 py-3 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1d4ed8] hover:to-[#0284c7] text-white rounded-lg
+              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-md hover-lift
+            "
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Ekspor Database Excel
+          </button>
+        </div>
       </div>
 
       {/* ── Sub-menu Tab Switcher (Sleek Glassmorphic & Modern Navigation) ── */}
@@ -735,7 +861,7 @@ export default function AdminDashboardPage() {
           <>
             {/* Premium Statistic Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col justify-between">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative overflow-hidden flex flex-col justify-between hover-lift transition-all duration-300">
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
                   Total Partisipan Atlet
                 </span>
@@ -749,7 +875,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col justify-between">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative overflow-hidden flex flex-col justify-between hover-lift transition-all duration-300">
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
                   Reduksi Burnout Mental
                 </span>
@@ -763,7 +889,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col justify-between">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative overflow-hidden flex flex-col justify-between hover-lift transition-all duration-300">
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
                   Rata-rata Akselerasi 10m
                 </span>
@@ -777,7 +903,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col justify-between">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative overflow-hidden flex flex-col justify-between hover-lift transition-all duration-300">
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
                   Rata-rata Vertikal CMJ
                 </span>
@@ -793,7 +919,7 @@ export default function AdminDashboardPage() {
 
             {/* Side-by-Side Comparative Graphs */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)]">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Perbandingan Skor Burnout ABQ</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Analisis visual perbandingan pre-test vs post-test kuesioner ABQ per atlet.</p>
@@ -803,7 +929,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.015)]">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan CMJ Vertikal (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
@@ -818,7 +944,7 @@ export default function AdminDashboardPage() {
 
         {/* ── Tab 2: Rekam Medis Atlet ── */}
         {currentMenu === 'database' && (
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.015)]">
+          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-6 pb-6 border-b border-slate-50">
               <div>
                 <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Database Rekam Medis Atlet</h2>
@@ -866,15 +992,15 @@ export default function AdminDashboardPage() {
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
-                    <th className="py-3 px-2">Atlet</th>
-                    <th className="py-3 px-2">Pemeriksa</th>
-                    <th className="py-3 px-2 text-center">Umur / BMI</th>
-                    <th className="py-3 px-2 text-center">Skor ABQ (Pre/Post)</th>
-                    <th className="py-3 px-2 text-center">Sprint Pre/Post</th>
-                    <th className="py-3 px-2 text-center">CMJ Pre/Post</th>
-                    <th className="py-3 px-2 text-center">Hop Pre/Post</th>
-                    <th className="py-3 px-2 text-center">Aksi / Video</th>
-                    <th className="py-3 px-2 text-right">Evaluasi Klinis & Risiko Cedera</th>
+                    <th className="py-3.5 px-4">Atlet</th>
+                    <th className="py-3.5 px-4">Pemeriksa</th>
+                    <th className="py-3.5 px-4 text-center">Umur / BMI</th>
+                    <th className="py-3.5 px-4 text-center">Skor ABQ (Pre/Post)</th>
+                    <th className="py-3.5 px-4 text-center">Sprint Pre/Post</th>
+                    <th className="py-3.5 px-4 text-center">CMJ Pre/Post</th>
+                    <th className="py-3.5 px-4 text-center">Hop Pre/Post</th>
+                    <th className="py-3.5 px-4 text-center">Aksi / Video</th>
+                    <th className="py-3.5 px-4 text-right">Evaluasi Klinis & Risiko Cedera</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-slate-600">
@@ -887,10 +1013,10 @@ export default function AdminDashboardPage() {
                   ) : (
                     filteredAthletes.map((a) => (
                       <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-4 px-2">
+                        <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-[9px] font-black tracking-wider shrink-0 shadow-sm">
-                              {getInitials(a.name)}
+                               {getInitials(a.name)}
                             </div>
                             <div>
                               <p className="font-bold text-slate-800 leading-none">{a.name}</p>
@@ -899,73 +1025,86 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         
-                        <td className="py-4 px-2 text-slate-500 font-semibold">{a.researcher}</td>
+                        <td className="py-4 px-4 text-slate-500 font-semibold">{a.researcher}</td>
                         
-                        <td className="py-4 px-2 text-center">
+                        <td className="py-4 px-4 text-center">
                           <div className="font-bold text-slate-800">{a.age} th</div>
                           <div className="text-[9px] text-slate-400 mt-0.5">{a.bmi} ({a.bmi_category})</div>
                         </td>
-
-                        <td className="py-4 px-2 text-center">
+ 
+                        <td className="py-4 px-4 text-center">
                           <div className="flex justify-center items-center gap-1.5 font-mono text-[10px] font-bold">
                             <span className="text-slate-400">{a.abq_pre}</span>
                             <span className="text-slate-300">→</span>
                             <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">{a.abq_post}</span>
                           </div>
                         </td>
-
-                        <td className="py-4 px-2 text-center font-mono text-[10px]">
+ 
+                        <td className="py-4 px-4 text-center font-mono text-[10px]">
                           <div className="flex justify-center items-center gap-1">
                             <span className="text-slate-400">{a.sprint_pre}s</span>
                             <span className="text-slate-300">→</span>
                             <span className="text-slate-800 font-bold">{a.sprint_post}s</span>
                           </div>
                         </td>
-
-                        <td className="py-4 px-2 text-center font-mono text-[10px]">
+ 
+                        <td className="py-4 px-4 text-center font-mono text-[10px]">
                           <div className="flex justify-center items-center gap-1">
                             <span className="text-slate-400">{a.cmj_pre}c</span>
                             <span className="text-slate-300">→</span>
                             <span className="text-slate-800 font-bold">{a.cmj_post}c</span>
                           </div>
                         </td>
-
-                        <td className="py-4 px-2 text-center font-mono text-[10px]">
+ 
+                        <td className="py-4 px-4 text-center font-mono text-[10px]">
                           <div className="flex justify-center items-center gap-1">
                             <span className="text-slate-400">{a.hop_pre}c</span>
                             <span className="text-slate-300">→</span>
                             <span className="text-slate-800 font-bold">{a.hop_post}c</span>
                           </div>
                         </td>
-
-                        <td className="py-4 px-2 text-center">
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedVideo(a.video)}
-                              className="
-                                px-2 py-1.5 bg-slate-50 border border-slate-100 hover:border-slate-300 hover:bg-slate-100 text-slate-700 rounded
-                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1
-                              "
-                              title="Lihat Rekaman Video"
-                            >
-                              🎥 Video
-                            </button>
+ 
+                        <td className="py-4 px-4 text-center">
+                          <div className="flex flex-wrap items-center justify-center gap-1.5">
+                            {a.video && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedVideo(a.video)}
+                                className="
+                                  px-2 py-1.5 bg-slate-50 border border-slate-100 hover:border-slate-300 hover:bg-slate-100 text-slate-700 rounded
+                                  text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1
+                                "
+                                title="Lihat Rekaman Video"
+                              >
+                                🎥
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => handleStartTestForAthlete(a)}
                               className="
-                                px-2 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded
+                                px-2.5 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded
                                 text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1 shadow-sm
                               "
                               title="Jalankan Pengujian Atlet Sekarang"
                             >
-                              🧪 Jalankan Tes
+                              🧪 Tes
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAthlete(a.id)}
+                              className="
+                                px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded border border-rose-100
+                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center shadow-sm
+                              "
+                              title="Hapus Data Atlet"
+                            >
+                              🗑️ Hapus
                             </button>
                           </div>
                         </td>
-
-                        <td className="py-4 px-2 text-right text-[9px] font-bold uppercase tracking-wide max-w-[200px] leading-relaxed">
+ 
+                        <td className="py-4 px-4 text-right text-[9px] font-bold uppercase tracking-wide max-w-[200px] leading-relaxed">
                           <span className={`px-2 py-0.5 rounded border ${a.hop_post > 150 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-500 border-rose-100'}`}>
                             {getAnatomicalEvaluation(a)}
                           </span>
@@ -983,7 +1122,7 @@ export default function AdminDashboardPage() {
         {currentMenu === 'registration' && (
           <div className="space-y-8">
             {/* Registrasi Akun Peneliti Baru */}
-            <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.015)]">
+            <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
               <div className="mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb]" />
                 <div>
@@ -1069,7 +1208,7 @@ export default function AdminDashboardPage() {
 
         {/* ── Tab 4: Aturan & Protokol ── */}
         {currentMenu === 'config' && (
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.015)]">
+          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
             <div className="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
               <div>
                 <div className="flex items-center gap-1.5">
@@ -1318,6 +1457,151 @@ export default function AdminDashboardPage() {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── INTERACTIVE TOUR / WALKTHROUGH OVERLAY ── */}
+      {isTourOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-lg bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-2xl relative p-6 space-y-6 animate-scale-in">
+            
+            {/* Top Indicator & Skip */}
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-black text-[#2563eb] uppercase tracking-wider bg-[#2563eb]/10 px-2 py-1 rounded">
+                🚀 Panduan Dashboard (Langkah {tourStep} dari 5)
+              </span>
+              <button
+                onClick={handleSkipTour}
+                className="text-[10px] font-black text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-wider cursor-pointer"
+              >
+                Lewati Panduan ✕
+              </button>
+            </div>
+
+            {/* Slide Contents based on tourStep */}
+            {tourStep === 1 && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-[#2563eb]/10 rounded-full flex items-center justify-center text-2xl">
+                  👋
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Selamat Datang di Portal Peneliti Medis!</h3>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Dashboard Klinis ini dirancang khusus untuk memonitor hasil penelitian <strong>COM 7 Kedokteran UNIMUS</strong> mengenai pengaruh <em>Foot Reflexology</em> terhadap pemulihan ketegangan otot dan burnout mental atlet.
+                  </p>
+                  <p className="text-xs text-slate-500 leading-normal font-medium text-slate-600 bg-slate-50 border border-slate-100 p-2.5 rounded">
+                    💡 Mari luangkan waktu <strong>1 menit</strong> untuk memahami fitur-fitur utama agar Anda dapat mengoperasikan sistem dengan lancar dan tanpa bingung.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {tourStep === 2 && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-2xl">
+                  📊
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">1. Ringkasan Analitik & Visualisasi Grafik</h3>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Di tab <strong>Ringkasan Analitik</strong> ini (yang sedang aktif di belakang), Anda dapat memantau indikator klinis penting secara real-time:
+                  </p>
+                  <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-5 leading-normal">
+                    <li><strong>Total Partisipan Atlet</strong> yang terdaftar dalam uji klinis.</li>
+                    <li><strong>Reduksi Burnout Mental</strong> (Skor ABQ kuesioner Pre vs Post).</li>
+                    <li><strong>Grafik Perbandingan Medis</strong>: Tren penurunan stres mental (ABQ) dan grafik pemulihan daya ledak vertikal (CMJ Pre vs Post) atlet.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {tourStep === 3 && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl">
+                  📋
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">2. Rekam Medis & Memulai Pengujian Atlet</h3>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Kami baru saja mengalihkan tab ke <strong>Rekam Medis Atlet</strong>. Di menu ini Anda dapat:
+                  </p>
+                  <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-5 leading-normal">
+                    <li>Mencari dan memantau parameter biomekanika detail (Sprint, CMJ, Hop).</li>
+                    <li>Memutar rekaman video gerak fisik atlet dengan tombol 🎥 <strong>Video</strong>.</li>
+                    <li><strong className="text-[#2563eb]">Paling Penting:</strong> Jalankan sesi pengujian klinis baru untuk atlet dengan mengeklik tombol 🧪 <strong>Jalankan Tes</strong>. Hal ini memandu alur lengkap riset (Consent Form → ABQ Pre → Sesi Fisik 1 → Reflexology → Sesi Fisik 2 → ABQ Post).</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {tourStep === 4 && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-2xl">
+                  ⚙️
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">3. Aturan Protokol & Kustomisasi Uji Coba</h3>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Sekarang kita berada di tab <strong>Aturan & Protokol</strong>. Di sini peneliti dapat melakukan kustomisasi uji coba klinis:
+                  </p>
+                  <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-5 leading-normal">
+                    <li>Mengubah stopwatch timer terapi reflexology global (preset standar: 3 menit).</li>
+                    <li>Mengatur batas durasi rekam video gerak dan hitung mundur wajib baca informed consent.</li>
+                    <li>Mengubah instruksi langkah pelaksanaan, deskripsi klinis, serta menyematkan link YouTube petunjuk yang di-sync otomatis ke alur pengujian atlet.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {tourStep === 5 && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl">
+                  💾
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">4. Ekspor Data Excel & Selesai!</h3>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Gunakan tombol 📥 <strong>Ekspor Database Excel</strong> di pojok kanan atas halaman untuk mendownload seluruh rekam medis atlet menjadi format CSV. File ini siap diolah ke Microsoft Excel, SPSS, atau Google Sheets peneliti.
+                  </p>
+                  <p className="text-xs text-slate-500 leading-normal">
+                    Semua sistem sinkronisasi Front-End dan database Back-End Supabase berjalan secara otomatis untuk menyederhanakan administrasi riset Anda.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step indicators progress dots */}
+            <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <span
+                    key={s}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${tourStep === s ? 'w-6 bg-[#2563eb]' : 'w-1.5 bg-slate-200'}`}
+                  />
+                ))}
+              </div>
+
+              {/* Navigation buttons */}
+              <div className="flex gap-2">
+                {tourStep > 1 && (
+                  <button
+                    onClick={handlePrevTourStep}
+                    type="button"
+                    className="px-3.5 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors"
+                  >
+                    Kembali
+                  </button>
+                )}
+                <button
+                  onClick={handleNextTourStep}
+                  type="button"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors"
+                >
+                  {tourStep === 5 ? 'Selesai Panduan' : 'Lanjut'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
