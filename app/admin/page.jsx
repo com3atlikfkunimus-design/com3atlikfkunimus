@@ -74,9 +74,11 @@ export default function AdminDashboardPage() {
   const [currentMenu, setCurrentMenu] = useState('analytics'); // analytics, database, registration, config
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [activeTab, setActiveTab] = useState('semua');
   const [toast, setToast] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedAthleteForVideo, setSelectedAthleteForVideo] = useState(null);
   const [activeConfigTab, setActiveConfigTab] = useState('sprint');
 
   // Interactive Walkthrough Tour state variables
@@ -346,7 +348,15 @@ export default function AdminDashboardPage() {
             cmj_post: cPost,
             hop_pre: hPre,
             hop_post: hPost,
-            video: localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || null,
+            hasVideo: !!(localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || localSesi2.sprintLink || db.video_url_sprint_post || db.video_url_cmj_post || db.video_url_hop_post),
+            videoUrls: {
+              sprint_pre: localSesi1.sprintLink || db.video_url_sprint || null,
+              cmj_pre: localSesi1.cmjLink || db.video_url_cmj || null,
+              hop_pre: localSesi1.hopLink || db.video_url_hop || null,
+              sprint_post: localSesi2.sprintLink || db.video_url_sprint_post || null,
+              cmj_post: localSesi2.cmjLink || db.video_url_cmj_post || null,
+              hop_post: localSesi2.hopLink || db.video_url_hop_post || null
+            }
           };
         });
         
@@ -428,11 +438,7 @@ export default function AdminDashboardPage() {
 
   // Delete athlete handler
   const handleDeleteAthlete = async (id) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus data atlet ini secara permanen?")) {
-      return;
-    }
-
-    // Try deleting from Supabase
+    if (!window.confirm('PERINGATAN!\nApakah Anda yakin ingin menghapus atlet ini? Data yang dihapus tidak dapat dikembalikan.')) return;
     try {
       const { error } = await supabase.from('athletes').delete().eq('id', id);
       if (error) console.warn('[Supabase] Delete failed:', error);
@@ -646,6 +652,12 @@ export default function AdminDashboardPage() {
     }
     return matchesSearch;
   });
+
+  // Pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAthletes.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAthletes.length / itemsPerPage);
 
   // Chart configs
   const chartLabels = filteredAthletes.slice(0, 6).map((a) => a.name.split(' ')[0]);
@@ -1011,7 +1023,7 @@ export default function AdminDashboardPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredAthletes.map((a) => (
+                    currentItems.map((a) => (
                       <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
@@ -1066,10 +1078,10 @@ export default function AdminDashboardPage() {
  
                         <td className="py-4 px-4 text-center">
                           <div className="flex flex-wrap items-center justify-center gap-1.5">
-                            {a.video && (
+                            {a.hasVideo && (
                               <button
                                 type="button"
-                                onClick={() => setSelectedVideo(a.video)}
+                                onClick={() => setSelectedAthleteForVideo(a)}
                                 className="
                                   px-2 py-1.5 bg-slate-50 border border-slate-100 hover:border-slate-300 hover:bg-slate-100 text-slate-700 rounded
                                   text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1
@@ -1115,6 +1127,31 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-50">
+                <p className="text-[9px] text-slate-400 font-bold tracking-wider">
+                  Menampilkan {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredAthletes.length)} dari {filteredAthletes.length} atlet
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+                  >
+                    Sebelumnya
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+                  >
+                    Selanjutnya
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1432,31 +1469,50 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Video Viewport Overlay Lightbox */}
-      {selectedVideo && (
+      {selectedAthleteForVideo && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md"
-          onClick={() => setSelectedVideo(null)}
+          onClick={() => setSelectedAthleteForVideo(null)}
         >
           <div 
             className="w-full max-w-2xl bg-white border border-slate-200 rounded-lg overflow-hidden shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 p-4">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Video Rekam Bukti Eksperimen</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Video Rekam Eksperimen: {selectedAthleteForVideo.name}</span>
               <button 
-                onClick={() => setSelectedVideo(null)}
+                onClick={() => setSelectedAthleteForVideo(null)}
                 className="text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 ✕ Tutup
               </button>
             </div>
-            <div className="aspect-video w-full bg-slate-950">
-              <iframe
-                src={selectedVideo}
-                className="w-full h-full object-cover"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50">
+              <div className="space-y-3 bg-white p-4 rounded border border-slate-200">
+                <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3">Pre-Test (Sesi 1)</h4>
+                {selectedAthleteForVideo.videoUrls.sprint_pre ? (
+                  <a href={selectedAthleteForVideo.videoUrls.sprint_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Sprint Belum Ada</span>}
+                {selectedAthleteForVideo.videoUrls.cmj_pre ? (
+                  <a href={selectedAthleteForVideo.videoUrls.cmj_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video CMJ Belum Ada</span>}
+                {selectedAthleteForVideo.videoUrls.hop_pre ? (
+                  <a href={selectedAthleteForVideo.videoUrls.hop_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Hop Belum Ada</span>}
+              </div>
+
+              <div className="space-y-3 bg-white p-4 rounded border border-slate-200">
+                <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3">Post-Test (Sesi 2)</h4>
+                {selectedAthleteForVideo.videoUrls.sprint_post ? (
+                  <a href={selectedAthleteForVideo.videoUrls.sprint_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Sprint Belum Ada</span>}
+                {selectedAthleteForVideo.videoUrls.cmj_post ? (
+                  <a href={selectedAthleteForVideo.videoUrls.cmj_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video CMJ Belum Ada</span>}
+                {selectedAthleteForVideo.videoUrls.hop_post ? (
+                  <a href={selectedAthleteForVideo.videoUrls.hop_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
+                ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Hop Belum Ada</span>}
+              </div>
             </div>
           </div>
         </div>

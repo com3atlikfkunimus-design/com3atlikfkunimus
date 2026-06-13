@@ -24,8 +24,8 @@ export const metadata = {
  */
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-900 text-white">
+    <html lang="id" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-slate-900 text-white" suppressHydrationWarning>
         <AuthProvider>
           <StudyProvider>
             {children}

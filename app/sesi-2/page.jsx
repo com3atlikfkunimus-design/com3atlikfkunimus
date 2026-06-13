@@ -1,73 +1,535 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useStudy } from '@/context/StudyContext';
 import ResearchPageLayout from '@/components/ResearchPageLayout';
 import StepIndicator from '@/components/StepIndicator';
+import Toast from '@/components/Toast';
+
+const TEST_DETAILS = {
+  sprint: {
+    id: 'sprint',
+    title: '10/20 m Sprint',
+    desc: 'Pengukuran kecepatan linier atlet menempuh jarak pendek secara maksimal.',
+    unit: 'detik',
+    videoUrl: 'https://www.youtube.com/embed/5D1gE7L2KGs', // Tutorial sprint
+    tataCara: [
+      'Atlet berdiri di belakang garis start dalam posisi berdiri atau berkuda (standing start).',
+      'Peneliti memberikan aba-aba "Bersedia, Siap, Ya!" atau tiupan peluit.',
+      'Atlet berlari secepat mungkin melewati garis finish.',
+      'Waktu dicatat menggunakan stopwatch digital presisi atau sensor gerak.',
+    ],
+  },
+  cmj: {
+    id: 'cmj',
+    title: 'Countermovement Jump',
+    desc: 'Pengukuran daya ledak (explosive power) otot tungkai vertikal dengan awalan menekuk lutut.',
+    unit: 'cm',
+    videoUrl: 'https://www.youtube.com/embed/s3M0XyN6Fsw', // Tutorial CMJ
+    tataCara: [
+      'Atlet berdiri tegak di atas matras jump atau area pengukuran dengan tangan di pinggang.',
+      'Atlet melakukan gerakan jongkok cepat (countermovement) lalu melompat vertikal setinggi-tingginya.',
+      'Mendarat dengan kedua kaki secara bersamaan dan menjaga keseimbangan.',
+      'Tinggi lompatan diukur berdasarkan waktu melayang atau skala ukur dinding.',
+    ],
+  },
+  hop: {
+    id: 'hop',
+    title: 'Single Leg Hop',
+    desc: 'Pengukuran kekuatan fungsional dan stabilitas tungkai tunggal melalui lompatan horizontal.',
+    unit: 'cm',
+    videoUrl: 'https://www.youtube.com/embed/U3fWn2-6K4c', // Tutorial Hop Test
+    tataCara: [
+      'Atlet berdiri dengan satu kaki terpilih di belakang garis start.',
+      'Atlet melompat sejauh mungkin ke depan menggunakan kaki tersebut dan harus mendarat stabil dengan kaki yang sama.',
+      'Posisi pendaratan harus dipertahankan selama minimal 2 detik tanpa kehilangan keseimbangan.',
+      'Jarak diukur dari garis start hingga tumit kaki pendaratan.',
+    ],
+  },
+};
 
 export default function Sesi2Page() {
   const router = useRouter();
   const { researcher, isHydrated, logout } = useAuth();
-  const { resetStudy } = useStudy();
+  const { savedAthleteId, athleteProfile, saveSesi2Results, resetStudy } = useStudy();
 
-  // Guard (Removed researcher check for open athlete flow)
+  // Active View State: 'select' (Slide 4) or 'testing' (Slide 6 - Recording page)
+  const [viewState, setViewState] = useState('select');
+  const [activeTestId, setActiveTestId] = useState(null);
 
-  const handleFinishAll = () => {
+  const [testDetails, setTestDetails] = useState(TEST_DETAILS);
+  const [globalConfig, setGlobalConfig] = useState({
+    sessionTime: 180,
+    cameraLimit: 20,
+    modalCountdown: 5
+  });
+
+  // Load custom configurations set by researcher in admin dashboard
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('com7_test_configurations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.tests) {
+          setTestDetails(parsed.tests);
+        }
+        if (parsed.global) {
+          setGlobalConfig(parsed.global);
+          setSessionTime(parsed.global.sessionTime || 180);
+          setModalCountdown(parsed.global.modalCountdown || 5);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load dynamic test configurations:', e);
+    }
+  }, []);
+
+  // Statuses: 'Belum Mulai' or 'Selesai'
+  const [testStatuses, setTestStatuses] = useState({
+    sprint: 'Belum Mulai',
+    cmj: 'Belum Mulai',
+    hop: 'Belum Mulai',
+  });
+
+  // Global Session Timer (3 Minutes = 180 seconds) for the active test
+  const [sessionTime, setSessionTime] = useState(180);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
+  // Pop-up & Wajib Baca Countdown State (Slide 5) - REMOVED per user request
+
+  // Per-test camera/recording state
+  const [testStates, setTestStates] = useState({
+    sprint: { isUploading: false, link: '', hasVideo: false, score: '' },
+    cmj: { isUploading: false, link: '', hasVideo: false, score: '' },
+    hop: { isUploading: false, link: '', hasVideo: false, score: '' },
+  });
+
+  // Camera permission and active state
+  const [cameraPermissionError, setCameraPermissionError] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+
+  // Toast State
+  const [toast, setToast] = useState(null);
+
+  // Camera stream references
+  
+  // Guard (Removed researcher check for athlete convenience)
+
+  // Select test card (Slide 4)
+  const handleSelectTest = (testId) => {
+    setActiveTestId(testId);
+    setViewState('testing');
+  };
+
+  // Simulate Practice Test
+  const handleLatihan = () => {
+    setToast({
+      message: `Memulai Latihan Simulasi untuk ${TEST_DETAILS[activeTestId].title}.`,
+      type: 'info',
+      key: Date.now(),
+    });
+    setTestStates((prev) => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], isSimulated: true },
+    }));
+  };
+
+  // Start Official Recording
+  const handleTesSekarang = () => {
+    if (isTimeUp) return;
+    
+    // Attempt camera start if not active
+    if (!cameraActive) {
+      startCamera();
+    }
+
+    setTestStates((prev) => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], false: true, recordTime: 0, isSimulated: false },
+    }));
+  };
+
+  // Stop Official Recording
+  const handleStopRekam = () => {
+    
+    setTestStates((prev) => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], hasVideo: true },
+    }));
+    setTestStatuses((prev) => ({
+      ...prev,
+      [activeTestId]: 'Selesai',
+    }));
+  };
+
+  
+  const handleRetake = () => {
+    setTestStates((prev) => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], hasVideo: false, link: '' },
+    }));
+    setTestStatuses((prev) => ({
+      ...prev,
+      [activeTestId]: 'Belum Mulai',
+    }));
+  };
+
+  // Cancel / Kembali
+  const handleBackToSelect = () => {
+    setViewState('select');
+  };
+
+  const handleStateChange = (field, value) => {
+    setTestStates((prev) => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], [field]: value },
+    }));
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const handleNextAthlete = () => {
     resetStudy();
     router.push('/informed-consent');
   };
 
+  const handleGoToReflexology = async () => {
+    try {
+      if (savedAthleteId) {
+        await saveSesi2Results(
+          savedAthleteId,
+          testStates.sprint.score,
+          testStates.cmj.score,
+          testStates.hop.score,
+          testStates.sprint.link,
+          testStates.cmj.link,
+          testStates.hop.link
+        );
+      }
+    } catch (e) {
+      console.error('Failed to save Sesi 1 results:', e);
+    }
+    router.push('/post-test');
+  };
+
   if (!isHydrated) return null;
+
+  const currentTestData = activeTestId ? TEST_DETAILS[activeTestId] : null;
+  const currentTestState = activeTestId ? testStates[activeTestId] : null;
 
   return (
     <ResearchPageLayout
       researcher={researcher}
-      onLogout={() => {
-        logout();
-        router.replace('/login');
-      }}
-      title="Sesi 2: Pasca-Intervensi"
+      onLogout={() => { logout(); router.replace('/login'); }}
+      title="Sesi 2: Tes Fisik Pasca-Intervensi"
       lightTheme={true}
     >
-      <div className="mb-10 opacity-70">
+      {toast && (
+        <Toast key={toast.key} message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
+
+      <div className="mb-10">
         <StepIndicator currentStep={4} />
       </div>
 
-      <div className="max-w-md mx-auto bg-white border border-[#e2e8f0] rounded-lg p-8 text-center space-y-6">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 animate-pulse">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      
+      {viewState === 'testing' && (
+        <div className="fixed top-20 sm:top-24 right-6 z-40 bg-white border border-slate-200 px-4 py-2.5 rounded shadow flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">Timer Sesi</span>
+            <span className={`font-mono font-bold text-base sm:text-lg tracking-wider leading-none mt-1 ${'text-slate-800'}`}>
+              {formatTime(sessionTime)}
+            </span>
+          </div>
+          <div className={`w-2 h-2 rounded-full ${'bg-[#2563eb] animate-ping'}`} />
         </div>
+      )}
 
-        <div className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">Sesi Fisik Part 2 Siap Dimulai</h2>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            Terapi Foot Reflexology telah selesai diimplementasikan secara penuh. Peneliti dapat melanjutkan dengan pengujian motorik pasca-intervensi untuk mencatat efek biomekanika pemulihan pada performa fisik atlet.
-          </p>
-        </div>
+      {viewState === 'select' ? (
+        /* ── SLIDE PAGE 4: PEMILIHAN TES ── */
+        <div className="max-w-2xl mx-auto space-y-10">
+          <div className="text-center sm:text-left">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Pilih Protokol Tes Fisik</h1>
+            <p className="text-slate-500 text-xs mt-1 font-medium">
+              Sesi 2: Pengujian fisik kedua pasca-intervensi Foot Reflexology.
+            </p>
+          </div>
 
-        <div className="pt-4 border-t border-slate-100 space-y-3">
-          <button
-            onClick={handleFinishAll}
-            className="
-              w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-md
-              font-bold text-xs uppercase tracking-wider transition-all cursor-pointer
-            "
-          >
-            Selesaikan Riset & Naracoba Berikutnya
-          </button>
-          
-          <button
-            onClick={() => router.push('/reflexology')}
-            className="w-full py-2 bg-transparent text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-          >
-            ← Kembali ke Intervensi
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Object.values(TEST_DETAILS).map((test) => {
+              const status = testStatuses[test.id];
+              return (
+                <div
+                  key={test.id}
+                  onClick={() => handleSelectTest(test.id)}
+                  className="bg-white border border-[#e2e8f0] hover:border-slate-400 rounded-lg p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-none group"
+                >
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <span className="text-xs font-bold text-slate-800 group-hover:text-[#2563eb] transition-colors">{test.title}</span>
+                      <span className={`
+                        text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded
+                        ${status === 'Selesai'
+                          ? 'bg-emerald-55/10 text-emerald-600 border border-emerald-100'
+                          : 'bg-slate-50 text-slate-500 border border-slate-200'
+                        }
+                      `}>
+                        {status}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-normal">{test.desc}</p>
+                  </div>
+                  
+                  <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-[10px] font-bold text-[#2563eb] uppercase tracking-wider">
+                    <span>Mulai Asesmen</span>
+                    <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <p className="text-[10px] text-slate-500 leading-normal max-w-sm text-center sm:text-left font-medium">
+              {testStatuses.sprint === 'Selesai' && testStatuses.cmj === 'Selesai' && testStatuses.hop === 'Selesai'
+                ? 'Semua rangkaian tes fisik Sesi 2 selesai. Lanjutkan ke kuesioner ABQ tahap akhir.'
+                : 'Pastikan seluruh pengujian selesai sebelum mendaftarkan naracoba berikutnya untuk menjaga integritas basis data.'
+              }
+            </p>
+            {testStatuses.sprint === 'Selesai' && testStatuses.cmj === 'Selesai' && testStatuses.hop === 'Selesai' ? (
+              <button
+                onClick={handleGoToReflexology}
+                className="
+                  w-full sm:w-auto px-6 py-3 bg-[#2563eb] text-white rounded-md
+                  font-bold text-xs uppercase tracking-wider
+                  hover:bg-[#1d4ed8] active:bg-[#1e40af]
+                  transition-all duration-150 cursor-pointer flex items-center justify-center gap-2
+                "
+              >
+                Lanjut ke Kuesioner ABQ Pasca-Test
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={handleNextAthlete}
+                className="
+                  w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-md
+                  font-bold text-xs uppercase tracking-wider
+                  hover:bg-slate-800 active:bg-slate-950
+                  transition-all duration-150 cursor-pointer
+                "
+              >
+                Daftarkan Naracoba Berikutnya
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* ── SLIDE PAGE 6: LAYAR PEREKAMAN FISIK ATLET DENGAN HYBRID BACKUP ── */
+        <div className="max-w-3xl mx-auto bg-white border border-[#e2e8f0] rounded-lg p-6 md:p-8 shadow-none space-y-8">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
+            <div>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Tes Fisik Aktif</span>
+              <h2 className="text-base font-bold text-slate-900 mt-0.5">{currentTestData.title}</h2>
+            </div>
+            <button
+              onClick={handleBackToSelect}
+              className="text-[10px] font-bold text-slate-500 hover:text-slate-600 tracking-wider uppercase transition-colors duration-200 cursor-pointer"
+            >
+              ← Kembali
+            </button>
+          </div>
+
+          {/* Tutorial Box */}
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Prosedur Ringkas</span>
+              <ul className="text-[10px] text-slate-600 list-disc pl-4 space-y-0.5">
+                {currentTestData.tataCara.slice(0, 2).map((cara, idx) => (
+                  <li key={idx}>{cara}</li>
+                ))}
+                {currentTestData.tataCara.length > 2 && <li>Dan seterusnya...</li>}
+              </ul>
+            </div>
+            {currentTestData.videoUrl && (
+              <div className="w-full sm:w-32 aspect-video shrink-0 bg-slate-900 rounded overflow-hidden relative">
+                <iframe
+                  src={currentTestData.videoUrl}
+                  title={`Tutorial ${currentTestData.title}`}
+                  className="w-full h-full object-cover"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Two-Column Recording & Backup Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            
+            {/* Viewfinder Column */}
+            <div className="md:col-span-3 space-y-4">
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Umpan Kamera Video</span>
+              
+              
+              <div className="relative aspect-video w-full overflow-hidden bg-slate-50 border-2 border-dashed border-slate-300 rounded-[12px] flex flex-col items-center justify-center p-6 text-center">
+                {currentTestState.isUploading ? (
+                  <div className="flex flex-col items-center w-full max-w-xs">
+                    <div className="w-full bg-slate-200 rounded-full h-2.5 mb-4">
+                      <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 uppercase">Mengunggah Video... {uploadProgress}%</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Mohon tunggu, jangan tutup halaman ini.</p>
+                  </div>
+                ) : currentTestState.hasVideo ? (
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Video Berhasil Direkam/Diunggah</p>
+                    <a href={currentTestState.link} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 hover:underline">Lihat Video</a>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-1">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-500 max-w-[250px] leading-normal mb-3">Rekam video langsung dari HP kamu atau pilih file. (Maks 10MB)</p>
+                      <label className="cursor-pointer px-4 py-2 bg-[#2563eb] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#1d4ed8] transition-colors inline-block shadow">
+                        🎥 Ambil / Unggah Video
+                        <input type="file" accept="video/*" capture="environment" onChange={handleVideoUpload} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Viewfinder Action Buttons */}
+              <div className="space-y-3">
+                {currentTestState.hasVideo && (
+                  <button
+                    type="button"
+                    onClick={handleRetake}
+                    className="w-full py-2.5 bg-slate-50 text-slate-600 rounded border border-slate-200 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    🔄 Ulangi? (Ganti Video)
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Input Data Column */}
+            <div className="md:col-span-2 space-y-6">
+              {/* Score Input */}
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Hasil Skor Tes ({currentTestData.unit}) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder={`Masukkan hasil ${currentTestData.unit}`}
+                    value={currentTestState.score}
+                    onChange={(e) => handleStateChange('score', e.target.value)}
+                    className="
+                      w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb]
+                      py-2 pr-12 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none
+                      transition-colors duration-200
+                    "
+                  />
+                  <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">
+                    {currentTestData.unit}
+                  </span>
+                </div>
+              </div>
+
+              {/* Hybrid Backup Link Input */}
+              <div className="space-y-1 bg-slate-50/50 p-4 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-[10px] font-bold text-slate-800 uppercase tracking-wider">
+                    Link Upload GDrive/YT
+                  </label>
+                  {currentTestState.hasVideo ? (
+                    <span className="text-[8px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      Wajib (Backup)
+                    </span>
+                  ) : (
+                    <span className="text-[8px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      Opsional / Tautan
+                    </span>
+                  )}
+                </div>
+                <p className="text-[9px] text-slate-500 leading-normal mb-3">
+                  Anda bebas memilih: unggah video langsung di sebelah kiri, atau ketik tautan videonya di sini.
+                </p>
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/... atau https://youtube.com/..."
+                  value={currentTestState.link}
+                  onChange={(e) => handleStateChange('link', e.target.value)}
+                  className="
+                    w-full py-2 bg-transparent text-xs text-[#0f172a] placeholder-slate-300 outline-none rounded-none
+                    border-b border-slate-200 focus:border-[#2563eb] transition-colors duration-200
+                  "
+                />
+              </div>
+
+              {/* Simpan & Selesaikan (Manual Input Confirmation) */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!currentTestState.score.trim()) {
+                      setToast({
+                        message: 'Harap isi hasil skor pengujian secara manual terlebih dahulu.',
+                        type: 'warning',
+                        key: Date.now(),
+                      });
+                      return;
+                    }
+                    
+                    setTestStatuses((prev) => ({
+                      ...prev,
+                      [activeTestId]: 'Selesai',
+                    }));
+
+                    setToast({
+                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
+                      type: 'success',
+                      key: Date.now(),
+                    });
+
+                    setViewState('select');
+                  }}
+                  className="
+                    w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md
+                    font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer
+                    flex items-center justify-center gap-2 shadow-sm
+                  "
+                >
+                  💾 Simpan Hasil & Selesaikan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </ResearchPageLayout>
   );
 }

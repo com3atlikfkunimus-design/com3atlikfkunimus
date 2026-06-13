@@ -97,10 +97,7 @@ export default function Sesi1Page() {
   const [sessionTime, setSessionTime] = useState(180);
   const [isTimeUp, setIsTimeUp] = useState(false);
 
-  // Pop-up & Wajib Baca Countdown State (Slide 5)
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [modalCountdown, setModalCountdown] = useState(5);
-  const [isModalBtnActive, setIsModalBtnActive] = useState(false);
+  // Pop-up & Wajib Baca Countdown State (Slide 5) - REMOVED per user request
 
   // Per-test camera/recording state
   const [testStates, setTestStates] = useState({
@@ -390,7 +387,7 @@ export default function Sesi1Page() {
       {viewState === 'testing' && (
         <div className="fixed top-20 sm:top-24 right-6 z-40 bg-white border border-slate-200 px-4 py-2.5 rounded shadow flex items-center gap-3">
           <div className="flex flex-col">
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Timer Sesi</span>
+            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">Timer Sesi</span>
             <span className={`font-mono font-bold text-base sm:text-lg tracking-wider leading-none mt-1 ${isTimeUp ? 'text-red-600 animate-pulse' : 'text-slate-800'}`}>
               {formatTime(sessionTime)}
             </span>
@@ -404,7 +401,7 @@ export default function Sesi1Page() {
         <div className="max-w-2xl mx-auto space-y-10">
           <div className="text-center sm:text-left">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Pilih Protokol Tes Fisik</h1>
-            <p className="text-slate-400 text-xs mt-1 font-medium">
+            <p className="text-slate-500 text-xs mt-1 font-medium">
               Sesi 1: Lakukan 3 rangkaian evaluasi motorik atlet berikut secara berurutan.
             </p>
           </div>
@@ -425,16 +422,16 @@ export default function Sesi1Page() {
                         text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded
                         ${status === 'Selesai'
                           ? 'bg-emerald-55/10 text-emerald-600 border border-emerald-100'
-                          : 'bg-slate-50 text-slate-400 border border-slate-100'
+                          : 'bg-slate-50 text-slate-500 border border-slate-200'
                         }
                       `}>
                         {status}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 leading-normal">{test.desc}</p>
+                    <p className="text-[10px] text-slate-500 leading-normal">{test.desc}</p>
                   </div>
                   
-                  <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-[#2563eb] uppercase tracking-wider">
+                  <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-[10px] font-bold text-[#2563eb] uppercase tracking-wider">
                     <span>Mulai Asesmen</span>
                     <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -445,8 +442,8 @@ export default function Sesi1Page() {
             })}
           </div>
 
-          <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <p className="text-[10px] text-slate-400 leading-normal max-w-sm text-center sm:text-left font-medium">
+          <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <p className="text-[10px] text-slate-500 leading-normal max-w-sm text-center sm:text-left font-medium">
               {testStatuses.sprint === 'Selesai' && testStatuses.cmj === 'Selesai' && testStatuses.hop === 'Selesai'
                 ? 'Semua rangkaian tes fisik Part 1 telah selesai. Lanjutkan ke intervensi pemulihan.'
                 : 'Pastikan seluruh pengujian selesai sebelum mendaftarkan naracoba berikutnya untuk menjaga integritas basis data.'
@@ -485,23 +482,23 @@ export default function Sesi1Page() {
       ) : (
         /* ── SLIDE PAGE 6: LAYAR PEREKAMAN FISIK ATLET DENGAN HYBRID BACKUP ── */
         <div className="max-w-3xl mx-auto bg-white border border-[#e2e8f0] rounded-lg p-6 md:p-8 shadow-none space-y-8">
-          <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tes Fisik Aktif</span>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Tes Fisik Aktif</span>
               <h2 className="text-base font-bold text-slate-900 mt-0.5">{currentTestData.title}</h2>
             </div>
             <button
               onClick={handleBackToSelect}
-              className="text-[10px] font-bold text-slate-400 hover:text-slate-600 tracking-wider uppercase transition-colors duration-200 cursor-pointer"
+              className="text-[10px] font-bold text-slate-500 hover:text-slate-600 tracking-wider uppercase transition-colors duration-200 cursor-pointer"
             >
               ← Kembali
             </button>
           </div>
 
           {/* Tutorial Box */}
-          <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Prosedur Ringkas</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Prosedur Ringkas</span>
               <ul className="text-[10px] text-slate-600 list-disc pl-4 space-y-0.5">
                 {currentTestData.tataCara.slice(0, 2).map((cara, idx) => (
                   <li key={idx}>{cara}</li>
@@ -527,7 +524,7 @@ export default function Sesi1Page() {
             
             {/* Viewfinder Column */}
             <div className="md:col-span-3 space-y-4">
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Umpan Kamera Video</span>
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Umpan Kamera Video</span>
               
               <div className="relative aspect-video w-full overflow-hidden bg-slate-950 border border-slate-200 rounded-[12px] shadow-none flex items-center justify-center">
                 
@@ -570,7 +567,7 @@ export default function Sesi1Page() {
                     <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                       {isTimeUp ? 'Waktu Sesi Habis (00:00)' : 'Perekaman Selesai & Ditutup'}
                     </p>
-                    <p className="text-[10px] text-slate-400 max-w-[240px] leading-normal">
+                    <p className="text-[10px] text-slate-500 max-w-[240px] leading-normal">
                       {isTimeUp 
                         ? 'Sesi ditutup paksa untuk menghemat memori. Kamera dinonaktifkan.' 
                         : `Perekaman otomatis berhenti pada limit 20 detik untuk efisiensi penyimpanan.`}
@@ -584,12 +581,12 @@ export default function Sesi1Page() {
                 {/* 4. Connected but idle message */}
                 {!cameraActive && !currentTestState.hasVideo && !cameraPermissionError && !isTimeUp && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                    <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center mx-auto text-slate-400 mb-2">
+                    <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center mx-auto text-slate-500 mb-2">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Kamera Siap</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Kamera Siap</p>
                     <p className="text-[9px] text-slate-300">Tekan "Tes Sekarang" untuk memulai perekaman langsung.</p>
                   </div>
                 )}
@@ -660,7 +657,7 @@ export default function Sesi1Page() {
             <div className="md:col-span-2 space-y-6">
               {/* Score Input */}
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   Hasil Skor Tes ({currentTestData.unit}) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -676,14 +673,14 @@ export default function Sesi1Page() {
                       transition-colors duration-200
                     "
                   />
-                  <span className="absolute right-0 bottom-2 text-slate-400 text-xs font-bold uppercase">
+                  <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">
                     {currentTestData.unit}
                   </span>
                 </div>
               </div>
 
               {/* Hybrid Backup Link Input */}
-              <div className="space-y-1 bg-slate-50/50 p-4 rounded-lg border border-slate-100">
+              <div className="space-y-1 bg-slate-50/50 p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-[10px] font-bold text-slate-800 uppercase tracking-wider">
                     Link Upload GDrive/YT
@@ -698,7 +695,7 @@ export default function Sesi1Page() {
                     </span>
                   )}
                 </div>
-                <p className="text-[9px] text-slate-400 leading-normal mb-3">
+                <p className="text-[9px] text-slate-500 leading-normal mb-3">
                   Anda bebas memilih: rekam video langsung menggunakan kamera di sebelah kiri, atau ketik tautan videonya di sini.
                 </p>
                 <input
@@ -761,60 +758,6 @@ export default function Sesi1Page() {
         </div>
       )}
 
-      {/* ── SLIDE PAGE 5 POP-UP ALUR: PROTEKSI TATA CARA WAJIB BACA ── */}
-      {showTutorial && currentTestData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
-          <div
-            className="w-full max-w-md bg-white border border-[#e2e8f0] rounded-lg p-8 shadow-none relative max-h-[90vh] overflow-y-auto space-y-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="space-y-1 text-center sm:text-left">
-              <span className="text-[8px] font-black text-[#2563eb] uppercase tracking-widest">Proteksi Alur Klinis</span>
-              <h3 className="text-base font-bold text-[#0f172a]">Tata Cara: {currentTestData.title}</h3>
-              <p className="text-[10px] text-slate-400 font-medium leading-none">
-                Harap baca petunjuk pelaksanaan dengan saksama sebelum mengaktifkan modul perekaman.
-              </p>
-            </div>
-
-            <div className="space-y-3.5 text-xs text-slate-600 border-t border-b border-slate-100 py-5">
-              <ol className="list-decimal pl-5 space-y-3 leading-relaxed">
-                {currentTestData.tataCara.map((step, idx) => (
-                  <li key={idx} className="pl-1">
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleConfirmModal}
-                disabled={!isModalBtnActive}
-                className={`
-                  w-full py-3.5 rounded-md font-bold text-xs uppercase tracking-wider cursor-pointer
-                  transition-all duration-150 flex items-center justify-center gap-2
-                  ${isModalBtnActive
-                    ? 'bg-[#2563eb] text-white hover:bg-[#1d4ed8]'
-                    : 'bg-slate-100 text-slate-300 border border-slate-200/60 cursor-not-allowed'
-                  }
-                `}
-              >
-                {isModalBtnActive ? (
-                  <>
-                    Mulai Tes & Aktifkan Kamera
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
-                  </>
-                ) : (
-                  `Membaca Prosedur (${modalCountdown}s)`
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </ResearchPageLayout>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
 
@@ -27,12 +27,32 @@ export function StudyProvider({ children }) {
   const [savedAthleteId, setSavedAthleteId] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Load state from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedProfile = localStorage.getItem('com7_athleteProfile');
+      if (storedProfile) setAthleteProfileState(JSON.parse(storedProfile));
+
+      const storedAbqAnswers = localStorage.getItem('com7_abqAnswers');
+      if (storedAbqAnswers) setAbqAnswersState(JSON.parse(storedAbqAnswers));
+
+      const storedAbqScore = localStorage.getItem('com7_abqScore');
+      if (storedAbqScore) setAbqScoreState(JSON.parse(storedAbqScore));
+
+      const storedSavedId = localStorage.getItem('com7_savedAthleteId');
+      if (storedSavedId) setSavedAthleteId(JSON.parse(storedSavedId));
+    } catch (e) {
+      console.warn('Failed to load study context from localStorage', e);
+    }
+  }, []);
+
   /**
    * Simpan profil sementara di state (belum ke Supabase).
    * @param {{ name, age, prodi, weight, height, bmi, bmiCategory }} profile
    */
   function setAthleteProfile(profile) {
     setAthleteProfileState(profile);
+    try { localStorage.setItem('com7_athleteProfile', JSON.stringify(profile)); } catch (e) {}
   }
 
   /**
@@ -43,6 +63,10 @@ export function StudyProvider({ children }) {
   function setAbqResults(answers, score) {
     setAbqAnswersState(answers);
     setAbqScoreState(score);
+    try { 
+      localStorage.setItem('com7_abqAnswers', JSON.stringify(answers)); 
+      localStorage.setItem('com7_abqScore', JSON.stringify(score)); 
+    } catch (e) {}
   }
 
   /**
@@ -87,6 +111,7 @@ export function StudyProvider({ children }) {
       if (error) throw error;
 
       setSavedAthleteId(data.id);
+      try { localStorage.setItem('com7_savedAthleteId', JSON.stringify(data.id)); } catch (e) {}
       return data.id;
     } catch (err) {
       console.error('[StudyContext] Supabase insert failed:', err.message || err);
@@ -127,11 +152,11 @@ export function StudyProvider({ children }) {
   /**
    * Simpan hasil Sesi 2 fisik ke database & localStorage.
    */
-  async function saveSesi2Results(athleteId, sprint, cmj, hop, sprintLink, cmjLink, hopLink, abqPostScore) {
+  async function saveSesi2Results(athleteId, sprint, cmj, hop, sprintLink, cmjLink, hopLink) {
     if (!athleteId) return;
     try {
       const localKey = `com7_athlete_sesi2_${athleteId}`;
-      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hop, sprintLink, cmjLink, hopLink, abqPostScore }));
+      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hop, sprintLink, cmjLink, hopLink }));
     } catch (e) {}
 
     try {
@@ -141,7 +166,6 @@ export function StudyProvider({ children }) {
           sprint_post: parseFloat(sprint),
           cmj_post: parseFloat(cmj),
           hop_post: parseFloat(hop),
-          abq_post_score: abqPostScore ? parseInt(abqPostScore, 10) : null,
           video_url_sprint_post: sprintLink || null,
           video_url_cmj_post: cmjLink || null,
           video_url_hop_post: hopLink || null,
@@ -153,12 +177,71 @@ export function StudyProvider({ children }) {
     }
   }
 
+  /**
+   * Simpan hasil Post-Test ABQ
+   */
+  async function savePostAbqResults(athleteId, score) {
+    if (!athleteId) return;
+    try {
+      const { error } = await supabase
+        .from('athletes')
+        .update({
+          abq_post_score: parseInt(score, 10),
+        })
+        .eq('id', athleteId);
+      if (error) throw error;
+    } catch (err) {
+      console.warn('[StudyContext] Failed to save Post ABQ to Supabase:', err.message || err);
+      throw err;
+    }
+  }
+
+  /**
+   * Upload video ke Supabase Storage (bucket 'videos')
+   * Dibatasi ukuran 10MB di client-side pada saat pemanggilan.
+   */
+  async function uploadVideo(file, testId) {
+    if (!file) return null;
+    try {
+      const isConfigured = 
+        process.env.NEXT_PUBLIC_SUPABASE_URL && 
+        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-id');
+      if (!isConfigured) return null;
+
+      const fileExt = file.name.split('.').pop() || 'mp4';
+      const fileName = `${savedAthleteId || 'unknown'}-${testId}-${Date.now()}.${fileExt}`;
+      const filePath = `raw-footage/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .upload(filePath, file, { upsert: true });
+
+      if (error) throw error;
+
+      // Ambil public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('videos')
+        .getPublicUrl(filePath);
+
+      return publicUrlData.publicUrl;
+    } catch (err) {
+      console.error('[StudyContext] Video upload failed:', err);
+      throw err;
+    }
+  }
+
   /** Reset state setelah satu naracoba selesai (untuk naracoba berikutnya) */
   function resetStudy() {
     setAthleteProfileState(null);
     setAbqAnswersState(null);
     setAbqScoreState(null);
     setSavedAthleteId(null);
+    try {
+      localStorage.removeItem('com7_athleteProfile');
+      localStorage.removeItem('com7_abqAnswers');
+      localStorage.removeItem('com7_abqScore');
+      localStorage.removeItem('com7_savedAthleteId');
+    } catch (e) {}
   }
 
   return (
@@ -174,6 +257,8 @@ export function StudyProvider({ children }) {
         saveAthleteWithAbq,
         saveSesi1Results,
         saveSesi2Results,
+        savePostAbqResults,
+        uploadVideo,
         resetStudy,
         researcherId: researcher?.id ?? null,
         researcherName: researcher?.name ?? null,
