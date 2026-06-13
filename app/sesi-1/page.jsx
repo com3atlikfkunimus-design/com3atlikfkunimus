@@ -150,20 +150,6 @@ export default function Sesi1Page() {
     return () => clearInterval(interval);
   }, [sessionTime, viewState, activeTestId, testStates]);
 
-  // Modal countdown trigger
-  useEffect(() => {
-    if (!showTutorial) return;
-    if (modalCountdown <= 0) {
-      setIsModalBtnActive(true);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setModalCountdown((c) => c - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [showTutorial, modalCountdown]);
 
   // Start Camera Stream
   const startCamera = async () => {
