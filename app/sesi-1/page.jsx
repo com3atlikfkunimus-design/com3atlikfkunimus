@@ -235,18 +235,10 @@ export default function Sesi1Page() {
     return () => clearInterval(interval);
   }, [testStates, activeTestId, viewState]);
 
-  // Select test card (Slide 4)
+  // Select test card
   const handleSelectTest = (testId) => {
     setActiveTestId(testId);
-    setModalCountdown(5);
-    setIsModalBtnActive(false);
-    setShowTutorial(true);
-  };
-
-  // Confirm Modal (Slide 5 -> Slide 6)
-  const handleConfirmModal = () => {
-    setShowTutorial(false);
-    setSessionTime(180); // Reset countdown 3 minutes
+    setSessionTime(180);
     setIsTimeUp(false);
     setViewState('testing');
   };
