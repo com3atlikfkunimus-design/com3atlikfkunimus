@@ -268,7 +268,7 @@ export default function Sesi2Page() {
                 <div
                   key={test.id}
                   onClick={() => handleSelectTest(test.id)}
-                  className="bg-white border border-[#e2e8f0] hover:border-slate-400 rounded-lg p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-none group"
+                  className="bg-white border border-[#e2e8f0] hover:border-slate-400 rounded-lg p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer active:scale-95 transition-all shadow-none group"
                 >
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
@@ -311,7 +311,7 @@ export default function Sesi2Page() {
                   w-full sm:w-auto px-6 py-3 bg-[#2563eb] text-white rounded-md
                   font-bold text-xs uppercase tracking-wider
                   hover:bg-[#1d4ed8] active:bg-[#1e40af]
-                  transition-all duration-150 cursor-pointer flex items-center justify-center gap-2
+                  transition-all duration-150 cursor-pointer active:scale-95 transition-all flex items-center justify-center gap-2
                 "
               >
                 Lanjut ke Kuesioner ABQ Pasca-Test
@@ -326,7 +326,7 @@ export default function Sesi2Page() {
                   w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-md
                   font-bold text-xs uppercase tracking-wider
                   hover:bg-slate-800 active:bg-slate-950
-                  transition-all duration-150 cursor-pointer
+                  transition-all duration-150 cursor-pointer active:scale-95 transition-all
                 "
               >
                 Daftarkan Naracoba Berikutnya
@@ -344,7 +344,7 @@ export default function Sesi2Page() {
             </div>
             <button
               onClick={handleBackToSelect}
-              className="text-[10px] font-bold text-slate-500 hover:text-slate-600 tracking-wider uppercase transition-colors duration-200 cursor-pointer"
+              className="text-[10px] font-bold text-slate-500 hover:text-slate-600 tracking-wider uppercase transition-colors duration-200 cursor-pointer active:scale-95 transition-all"
             >
               ← Kembali
             </button>
@@ -410,7 +410,7 @@ export default function Sesi2Page() {
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-500 max-w-[250px] leading-normal mb-3">Rekam video langsung dari HP kamu atau pilih file. (Maks 10MB)</p>
-                      <label className="cursor-pointer px-4 py-2 bg-[#2563eb] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#1d4ed8] transition-colors inline-block shadow">
+                      <label className="cursor-pointer active:scale-95 transition-all px-4 py-2 bg-[#2563eb] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#1d4ed8] transition-colors inline-block shadow">
                         🎥 Ambil / Unggah Video
                         <input type="file" accept="video/*" capture="environment" onChange={handleVideoUpload} className="hidden" />
                       </label>
@@ -425,7 +425,7 @@ export default function Sesi2Page() {
                   <button
                     type="button"
                     onClick={handleRetake}
-                    className="w-full py-2.5 bg-slate-50 text-slate-600 rounded border border-slate-200 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
+                    className="w-full py-2.5 bg-slate-50 text-slate-600 rounded border border-slate-200 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer active:scale-95 transition-all"
                   >
                     🔄 Ulangi? (Ganti Video)
                   </button>
@@ -519,7 +519,7 @@ export default function Sesi2Page() {
                   }}
                   className="
                     w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md
-                    font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer
+                    font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 transition-all
                     flex items-center justify-center gap-2 shadow-sm
                   "
                 >

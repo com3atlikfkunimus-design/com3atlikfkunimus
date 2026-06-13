@@ -78,6 +78,7 @@ export default function AdminDashboardPage() {
   const itemsPerPage = 10;
   const [activeTab, setActiveTab] = useState('semua');
   const [toast, setToast] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedAthleteForVideo, setSelectedAthleteForVideo] = useState(null);
   const [activeConfigTab, setActiveConfigTab] = useState('sprint');
 
@@ -294,6 +295,7 @@ export default function AdminDashboardPage() {
   // Fetch Supabase athletes + local hybrid data
   const fetchSupabaseAthletes = async () => {
     if (!researcher) return;
+    setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('athletes')
@@ -802,7 +804,7 @@ export default function AdminDashboardPage() {
                   setToast({ message: 'Link portal pengujian atlet berhasil disalin!', type: 'success', key: Date.now() });
                 }
               }}
-              className="text-[9px] text-[#2563eb] font-bold uppercase tracking-wider bg-[#2563eb]/10 hover:bg-[#2563eb]/20 px-2 py-0.5 rounded cursor-pointer transition-all duration-150 border-none"
+              className="text-[9px] text-[#2563eb] font-bold uppercase tracking-wider bg-[#2563eb]/10 hover:bg-[#2563eb]/20 px-2 py-0.5 rounded cursor-pointer active:scale-95 transition-all duration-150 border-none"
             >
               Salin Link
             </button>
@@ -815,7 +817,7 @@ export default function AdminDashboardPage() {
             type="button"
             className="
               px-4 py-3 glass-panel border border-[#2563eb]/30 text-[#2563eb] hover:bg-[#2563eb]/5 hover:border-[#2563eb] rounded-lg
-              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-sm hover-lift
+              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-2 shadow-sm hover-lift
             "
           >
             <span className="animate-pulse">💡</span> Panduan Penggunaan
@@ -826,7 +828,7 @@ export default function AdminDashboardPage() {
             type="button"
             className="
               px-5 py-3 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1d4ed8] hover:to-[#0284c7] text-white rounded-lg
-              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-md hover-lift
+              text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-2 shadow-md hover-lift
             "
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -841,25 +843,25 @@ export default function AdminDashboardPage() {
       <div className="flex bg-slate-100 border border-slate-200/60 rounded-lg p-1 text-[10px] font-black uppercase tracking-wider text-slate-500 mb-8 max-w-full overflow-x-auto gap-1">
         <button
           onClick={() => setCurrentMenu('analytics')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer whitespace-nowrap ${currentMenu === 'analytics' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer active:scale-95 whitespace-nowrap ${currentMenu === 'analytics' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
         >
           📊 Ringkasan Analitik
         </button>
         <button
           onClick={() => setCurrentMenu('database')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer whitespace-nowrap ${currentMenu === 'database' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer active:scale-95 whitespace-nowrap ${currentMenu === 'database' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
         >
           📋 Rekam Medis Atlet
         </button>
         <button
           onClick={() => setCurrentMenu('registration')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer whitespace-nowrap ${currentMenu === 'registration' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer active:scale-95 whitespace-nowrap ${currentMenu === 'registration' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
         >
           👤 Registrasi Baru
         </button>
         <button
           onClick={() => setCurrentMenu('config')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer whitespace-nowrap ${currentMenu === 'config' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded transition-all cursor-pointer active:scale-95 whitespace-nowrap ${currentMenu === 'config' ? 'bg-white text-[#2563eb] shadow-sm font-extrabold' : 'hover:text-slate-800 hover:bg-slate-50/50'}`}
         >
           ⚙️ Aturan & Protokol
         </button>
@@ -980,19 +982,19 @@ export default function AdminDashboardPage() {
                 <div className="flex bg-slate-50 border border-slate-100 rounded-md p-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400">
                   <button
                     onClick={() => setActiveTab('semua')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'semua' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer active:scale-95 ${activeTab === 'semua' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
                   >
                     Semua
                   </button>
                   <button
                     onClick={() => setActiveTab('normal')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'normal' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer active:scale-95 ${activeTab === 'normal' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
                   >
                     Normal BMI
                   </button>
                   <button
                     onClick={() => setActiveTab('risk')}
-                    className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'risk' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
+                    className={`px-3 py-1.5 rounded transition-all cursor-pointer active:scale-95 ${activeTab === 'risk' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}`}
                   >
                     Risiko Tinggi
                   </button>
@@ -1016,7 +1018,21 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-slate-600">
-                  {filteredAthletes.length === 0 ? (
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={'skeleton-'+i}>
+                        <td className="py-4 px-4"><div className="h-8 w-32 bg-slate-100 rounded animate-pulse"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-24 bg-slate-100 rounded animate-pulse"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-16 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-20 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-16 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-16 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 w-16 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-6 w-24 bg-slate-100 rounded animate-pulse mx-auto"></div></td>
+                        <td className="py-4 px-4"><div className="h-6 w-32 bg-slate-100 rounded animate-pulse ml-auto"></div></td>
+                      </tr>
+                    ))
+                  ) : filteredAthletes.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="text-center py-10 text-slate-400 font-medium">
                         Tidak ada data atlet yang cocok dengan pencarian / filter Anda.
@@ -1084,7 +1100,7 @@ export default function AdminDashboardPage() {
                                 onClick={() => setSelectedAthleteForVideo(a)}
                                 className="
                                   px-2 py-1.5 bg-slate-50 border border-slate-100 hover:border-slate-300 hover:bg-slate-100 text-slate-700 rounded
-                                  text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1
+                                  text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 flex items-center gap-1
                                 "
                                 title="Lihat Rekaman Video"
                               >
@@ -1096,7 +1112,7 @@ export default function AdminDashboardPage() {
                               onClick={() => handleStartTestForAthlete(a)}
                               className="
                                 px-2.5 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded
-                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1 shadow-sm
+                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 flex items-center gap-1 shadow-sm
                               "
                               title="Jalankan Pengujian Atlet Sekarang"
                             >
@@ -1107,7 +1123,7 @@ export default function AdminDashboardPage() {
                               onClick={() => handleDeleteAthlete(a.id)}
                               className="
                                 px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded border border-rose-100
-                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center shadow-sm
+                                text-[8px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 flex items-center shadow-sm
                               "
                               title="Hapus Data Atlet"
                             >
@@ -1138,14 +1154,14 @@ export default function AdminDashboardPage() {
                   <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer active:scale-95 transition-colors"
                   >
                     Sebelumnya
                   </button>
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+                    className="px-3 py-1.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 disabled:opacity-50 text-slate-600 rounded text-[9px] font-bold uppercase cursor-pointer active:scale-95 transition-colors"
                   >
                     Selanjutnya
                   </button>
@@ -1212,7 +1228,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] active:bg-[#1e40af] text-white rounded font-bold text-[10px] uppercase tracking-wider transition-all duration-150 cursor-pointer text-center shadow-sm"
+                    className="w-full py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] active:bg-[#1e40af] text-white rounded font-bold text-[10px] uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 text-center shadow-sm"
                   >
                     {isSubmitting ? 'Membuat...' : 'Buat Akun'}
                   </button>
@@ -1326,7 +1342,7 @@ export default function AdminDashboardPage() {
                         type="button"
                         onClick={() => setActiveConfigTab(testKey)}
                         className={`
-                          px-4 py-2 rounded transition-all cursor-pointer
+                          px-4 py-2 rounded transition-all cursor-pointer active:scale-95
                           ${isActive ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-700'}
                         `}
                       >
@@ -1456,7 +1472,7 @@ export default function AdminDashboardPage() {
                   type="submit"
                   className="
                     px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-[10px] uppercase tracking-wider
-                    transition-all duration-150 cursor-pointer shadow-sm flex items-center justify-center gap-2
+                    transition-all duration-150 cursor-pointer active:scale-95 shadow-sm flex items-center justify-center gap-2
                   "
                 >
                   💾 Simpan Konfigurasi & Aturan Asesmen
@@ -1482,7 +1498,7 @@ export default function AdminDashboardPage() {
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Video Rekam Eksperimen: {selectedAthleteForVideo.name}</span>
               <button 
                 onClick={() => setSelectedAthleteForVideo(null)}
-                className="text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer active:scale-95"
               >
                 ✕ Tutup
               </button>
@@ -1530,7 +1546,7 @@ export default function AdminDashboardPage() {
               </span>
               <button
                 onClick={handleSkipTour}
-                className="text-[10px] font-black text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-wider cursor-pointer"
+                className="text-[10px] font-black text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-wider cursor-pointer active:scale-95"
               >
                 Lewati Panduan ✕
               </button>
@@ -1645,7 +1661,7 @@ export default function AdminDashboardPage() {
                   <button
                     onClick={handlePrevTourStep}
                     type="button"
-                    className="px-3.5 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors"
+                    className="px-3.5 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer active:scale-95 transition-colors"
                   >
                     Kembali
                   </button>
@@ -1653,7 +1669,7 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={handleNextTourStep}
                   type="button"
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[10px] font-bold uppercase tracking-wider cursor-pointer active:scale-95 transition-colors"
                 >
                   {tourStep === 5 ? 'Selesai Panduan' : 'Lanjut'}
                 </button>
