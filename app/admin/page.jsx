@@ -47,7 +47,7 @@ const CLINICAL_ATHLETES = [
   { id: 'a8', name: 'Aditya Putra', researcher: 'Dr. Ahmad Fauzi', age: 20, weight: 66.0, height: 172, bmi: 22.3, bmi_category: 'Normal', abq_pre: 14, abq_post: 8, sprint_pre: 4.58, sprint_post: 4.22, cmj_pre: 38.0, cmj_post: 44.0, hop_pre: 144, hop_post: 162, video: 'https://www.youtube.com/embed/s3M0XyN6Fsw' }
 ];
 
-const PRODI_OPTIONS = [
+const DEFAULT_PRODI_OPTIONS = [
   'Pendidikan Dokter (S1)',
   'Profesi Dokter',
   'Ilmu Keperawatan (S1)',
@@ -58,11 +58,34 @@ const PRODI_OPTIONS = [
   'Gizi (S1)',
   'Farmasi (S1)',
   'Fisioterapi (S1)',
-  'Teknik Elektromedik (D4)',
+  'Teknologi Laboratorium Medis (D4)',
   'Lainnya',
 ];
 
+function calculateBMI(weight, height) {
+  const w = parseFloat(weight);
+  const h = parseFloat(height);
+  if (!w || !h || w <= 0 || h <= 0) return null;
+
+  const heightM = h / 100;
+  const bmi = w / (heightM * heightM);
+  const bmiRounded = parseFloat(bmi.toFixed(1));
+
+  let category = 'Normal';
+  if (bmiRounded < 18.5) {
+    category = 'Underweight';
+  } else if (bmiRounded >= 25 && bmiRounded < 30) {
+    category = 'Overweight';
+  } else if (bmiRounded >= 30) {
+    category = 'Obesitas';
+  }
+
+  return { bmi: bmiRounded, category };
+}
+
 export default function AdminDashboardPage() {
+  const [prodiOptions, setProdiOptions] = useState(DEFAULT_PRODI_OPTIONS);
+  const [newProdiInput, setNewProdiInput] = useState('');
   const router = useRouter();
   const { researcher, isHydrated, logout } = useAuth();
   const { setAthleteProfile } = useStudy();
@@ -448,6 +471,11 @@ export default function AdminDashboardPage() {
   const handleEditClick = (athlete) => {
     setEditingAthlete(athlete);
     setEditForm({
+      name: athlete.name || '',
+      age: athlete.age || '',
+      weight: athlete.weight || '',
+      height: athlete.height || '',
+      prodi: athlete.prodi || '',
       abq_pre: athlete.abq_pre || 0,
       abq_post: athlete.abq_post || 0,
       sprint_pre: athlete.sprint_pre || 0,
@@ -461,10 +489,19 @@ export default function AdminDashboardPage() {
 
   const handleSaveEdit = async () => {
     if (!editingAthlete) return;
+    if (!window.confirm('Apakah Anda yakin ingin menyimpan perubahan data ini?')) return;
     setIsSavingEdit(true);
 
     try {
+      const bmiData = calculateBMI(editForm.weight, editForm.height);
       const updates = {
+        name: editForm.name,
+        age: parseInt(editForm.age, 10) || 0,
+        weight: parseFloat(editForm.weight) || 0,
+        height: parseFloat(editForm.height) || 0,
+        prodi: editForm.prodi,
+        bmi: bmiData ? bmiData.bmi : 0,
+        bmi_category: bmiData ? bmiData.category : 'Unknown',
         abq_score: parseInt(editForm.abq_pre, 10) || 0,
         abq_post_score: parseInt(editForm.abq_post, 10) || 0,
         sprint_pre: parseFloat(editForm.sprint_pre) || 0,
@@ -503,6 +540,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleDeleteAthlete = async (id) => {
+    if (!window.confirm('Apakah Anda benar-benar yakin ingin MENGHAPUS data atlet ini? Tindakan ini tidak dapat dibatalkan.')) return;
     if (!window.confirm('PERINGATAN!\nApakah Anda yakin ingin menghapus atlet ini? Data yang dihapus tidak dapat dikembalikan.')) return;
     try {
       const { error } = await supabase.from('athletes').delete().eq('id', id);
@@ -1767,10 +1805,66 @@ export default function AdminDashboardPage() {
       {editingAthlete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">Edit Data Medis</h3>
-            <p className="text-xs text-slate-500 mb-6">Ubah skor pre-test & post-test untuk <span className="font-bold">{editingAthlete.name}</span></p>
+            <h3 className="text-lg font-bold text-slate-800 mb-1">Edit Data Atlet</h3>
+            <p className="text-xs text-slate-500 mb-6">Ubah biografi dan rekam medis untuk <span className="font-bold">{editingAthlete.name}</span></p>
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
+              <div className="bg-slate-50 p-3 rounded border border-slate-100 space-y-3">
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Data Biografi</span>
+                
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-600">Nama Lengkap</label>
+                  <input 
+                    type="text" 
+                    value={editForm.name} 
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} 
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" 
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[9px] font-bold text-slate-600">Umur (th)</label>
+                    <input 
+                      type="number" 
+                      value={editForm.age} 
+                      onChange={(e) => setEditForm({ ...editForm, age: e.target.value })} 
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" 
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[9px] font-bold text-slate-600">Berat (kg)</label>
+                    <input 
+                      type="number" step="any"
+                      value={editForm.weight} 
+                      onChange={(e) => setEditForm({ ...editForm, weight: e.target.value })} 
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" 
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[9px] font-bold text-slate-600">Tinggi (cm)</label>
+                    <input 
+                      type="number" step="any"
+                      value={editForm.height} 
+                      onChange={(e) => setEditForm({ ...editForm, height: e.target.value })} 
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-600">Program Studi</label>
+                  <select 
+                    value={editForm.prodi} 
+                    onChange={(e) => setEditForm({ ...editForm, prodi: e.target.value })} 
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none cursor-pointer"
+                  >
+                    {prodiOptions.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               {[
                 { label: 'ABQ Score', preKey: 'abq_pre', postKey: 'abq_post' },
                 { label: 'Sprint (s)', preKey: 'sprint_pre', postKey: 'sprint_post' },
