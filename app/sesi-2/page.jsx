@@ -120,6 +120,8 @@ export default function Sesi2Page() {
   // Select test card (Slide 4)
   const handleSelectTest = (testId) => {
     setActiveTestId(testId);
+    setSessionTime(180);
+    setIsTimeUp(false);
     setViewState('testing');
   };
 
@@ -147,7 +149,7 @@ export default function Sesi2Page() {
 
     setTestStates((prev) => ({
       ...prev,
-      [activeTestId]: { ...prev[activeTestId], false: true, recordTime: 0, isSimulated: false },
+      [activeTestId]: { ...prev[activeTestId], isRecording: true, recordTime: 0, isSimulated: false },
     }));
   };
 
