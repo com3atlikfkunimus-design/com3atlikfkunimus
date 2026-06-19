@@ -111,6 +111,37 @@ export default function IntervensiPage() {
             </p>
           </div>
 
+          {/* Kriteria dan Referensi Gambar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg flex flex-col gap-3">
+              <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider">Kriteria Struk/Nota Valid</span>
+              <ul className="text-[10px] text-slate-500 list-disc pl-4 space-y-1">
+                <li>Harus <strong>jelas terlihat tanggal</strong> pijat otot (sesuai dengan jadwal sesi).</li>
+                <li>Harus <strong>jelas terlihat lokasi/nama tempat</strong> pijat otot.</li>
+                <li>Foto tidak boleh buram (blur) atau terpotong.</li>
+              </ul>
+              <div className="mt-2 rounded overflow-hidden border border-slate-200 relative group">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=400" alt="Contoh Struk" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex items-end p-2">
+                  <span className="text-[8px] text-white font-bold uppercase tracking-wider">Contoh Struk/Nota</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg flex flex-col gap-3">
+              <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider">Bukti Sedang Dipijat</span>
+              <p className="text-[10px] text-slate-500 leading-normal">
+                Sertakan minimal satu foto yang memperlihatkan atlet sedang mendapatkan intervensi pijat otot oleh terapis.
+              </p>
+              <div className="mt-auto rounded overflow-hidden border border-slate-200 relative group">
+                <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=400" alt="Contoh Dipijat" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex items-end p-2">
+                  <span className="text-[8px] text-white font-bold uppercase tracking-wider">Contoh Dokumentasi</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4 bg-slate-50/50 p-6 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
@@ -121,7 +152,7 @@ export default function IntervensiPage() {
               </span>
             </div>
             <p className="text-[10px] text-slate-500 leading-normal mb-3">
-              Silakan unggah foto nota pijat ke Google Drive Anda (pastikan akses terbuka untuk publik/peneliti) dan tempelkan tautannya di bawah ini.
+              Silakan jadikan satu folder Google Drive (struk nota + foto saat dipijat), pastikan akses terbuka untuk publik/peneliti, lalu tempelkan tautannya di bawah ini.
             </p>
             <input
               type="url"
