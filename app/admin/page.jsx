@@ -1882,7 +1882,6 @@ export default function AdminDashboardPage() {
                 { label: 'ABQ Score', preKey: 'abq_pre', postKey: 'abq_post' },
                 { label: 'Sprint (s)', preKey: 'sprint_pre', postKey: 'sprint_post' },
                 { label: 'CMJ (cm)', preKey: 'cmj_pre', postKey: 'cmj_post' },
-                { label: 'Hop (cm)', preKey: 'hop_pre', postKey: 'hop_post' },
               ].map((field) => (
                 <div key={field.label} className="bg-slate-50 p-3 rounded border border-slate-100">
                   <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{field.label}</span>
@@ -1908,6 +1907,25 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
+              <div className="bg-slate-50 p-3 rounded border border-slate-100">
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hop (cm) Kanan & Kiri</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-600">Pre-Test (Kanan | Kiri)</label>
+                    <div className="flex gap-1">
+                      <input type="number" step="any" placeholder="Kn" value={editForm.hop_kanan_pre} onChange={(e) => setEditForm({ ...editForm, hop_kanan_pre: e.target.value })} className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" />
+                      <input type="number" step="any" placeholder="Kr" value={editForm.hop_kiri_pre} onChange={(e) => setEditForm({ ...editForm, hop_kiri_pre: e.target.value })} className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-600">Post-Test (Kanan | Kiri)</label>
+                    <div className="flex gap-1">
+                      <input type="number" step="any" placeholder="Kn" value={editForm.hop_kanan_post} onChange={(e) => setEditForm({ ...editForm, hop_kanan_post: e.target.value })} className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" />
+                      <input type="number" step="any" placeholder="Kr" value={editForm.hop_kiri_post} onChange={(e) => setEditForm({ ...editForm, hop_kiri_post: e.target.value })} className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6 pt-4 border-t border-slate-100">
