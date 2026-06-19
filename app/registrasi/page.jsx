@@ -12,17 +12,16 @@ import { supabase } from '@/lib/supabaseClient';
 
 /** Daftar Program Studi yang tersedia */
 const PRODI_OPTIONS = [
-  'Pendidikan Dokter (S1)',
-  'Profesi Dokter',
-  'Ilmu Keperawatan (S1)',
-  'Profesi Ners',
-  'Kebidanan (S1)',
-  'Profesi Bidan',
-  'Kesehatan Masyarakat (S1)',
-  'Gizi (S1)',
-  'Farmasi (S1)',
-  'Fisioterapi (S1)',
-  'Teknik Elektromedik (D4)',
+  'Kesehatan Masyarakat',
+  'Ilmu Keolahragaan',
+  'Statistika',
+  'Teknologi Pangan',
+  'Ilmu Kelautan',
+  'Teknik Mesin',
+  'Rekayasa Elektro',
+  'Rekayasa Sipil',
+  'Arsitektur',
+  'Desain Komunikasi Visual',
   'Lainnya',
 ];
 
