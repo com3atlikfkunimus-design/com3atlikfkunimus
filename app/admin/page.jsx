@@ -508,8 +508,12 @@ export default function AdminDashboardPage() {
         sprint_post: parseFloat(editForm.sprint_post) || 0,
         cmj_pre: parseFloat(editForm.cmj_pre) || 0,
         cmj_post: parseFloat(editForm.cmj_post) || 0,
-        hop_pre: parseFloat(editForm.hop_pre) || 0,
-        hop_post: parseFloat(editForm.hop_post) || 0,
+        hop_pre: ((parseFloat(editForm.hop_kanan_pre)||0) + (parseFloat(editForm.hop_kiri_pre)||0))/2,
+        hop_post: ((parseFloat(editForm.hop_kanan_post)||0) + (parseFloat(editForm.hop_kiri_post)||0))/2,
+        hop_kanan_pre: parseFloat(editForm.hop_kanan_pre) || 0,
+        hop_kiri_pre: parseFloat(editForm.hop_kiri_pre) || 0,
+        hop_kanan_post: parseFloat(editForm.hop_kanan_post) || 0,
+        hop_kiri_post: parseFloat(editForm.hop_kiri_post) || 0,
       };
 
       const { error } = await supabase

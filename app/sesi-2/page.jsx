@@ -497,7 +497,7 @@ export default function Sesi2Page() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!currentTestState.score.trim()) {
+                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && !currentTestState.score.trim())) {
                       setToast({
                         message: 'Harap isi hasil skor pengujian secara manual terlebih dahulu.',
                         type: 'warning',
@@ -512,7 +512,7 @@ export default function Sesi2Page() {
                     }));
 
                     setToast({
-                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
+                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${activeTestId === 'hop' ? `Kanan ${currentTestState.scoreKanan}, Kiri ${currentTestState.scoreKiri}` : currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
                       type: 'success',
                       key: Date.now(),
                     });

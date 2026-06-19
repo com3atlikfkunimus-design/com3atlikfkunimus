@@ -103,7 +103,7 @@ export default function Sesi1Page() {
   const [testStates, setTestStates] = useState({
     sprint: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', isSimulated: false },
     cmj: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', isSimulated: false },
-    hop: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', isSimulated: false },
+    hop: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', scoreKanan: '', scoreKiri: '', isSimulated: false },
   });
 
   // Camera permission and active state
@@ -693,7 +693,7 @@ export default function Sesi1Page() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!currentTestState.score.trim()) {
+                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && !currentTestState.score.trim())) {
                       setToast({
                         message: 'Harap isi hasil skor pengujian secara manual terlebih dahulu.',
                         type: 'warning',
@@ -715,7 +715,7 @@ export default function Sesi1Page() {
                     }));
 
                     setToast({
-                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
+                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${activeTestId === 'hop' ? `Kanan ${currentTestState.scoreKanan}, Kiri ${currentTestState.scoreKiri}` : currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
                       type: 'success',
                       key: Date.now(),
                     });
