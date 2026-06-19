@@ -18,54 +18,17 @@ export default function IntervensiPage() {
 
   // Guard (Removed researcher check for open athlete flow)
 
-  // Timer Countdown Effect
-  useEffect(() => {
-    if (!isRunning || timeLeft <= 0) {
-      if (timeLeft === 0 && !isCompleted) {
-        handleTimerEnd();
-      }
+  const handleLanjutkan = () => {
+    if (!receiptLink.trim()) {
+      setToast({
+        message: 'Gagal: Bukti struk nota pijat otot (Link GDrive/Foto/Folder) wajib diisi sebelum melanjutkan!',
+        type: 'error',
+        key: Date.now(),
+      });
       return;
     }
-
-    const interval = setInterval(() => {
-      setTimeLeft((t) => t - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, isCompleted]);
-
-  const handleTimerEnd = () => {
-    setIsRunning(false);
-    setIsCompleted(true);
-    setToast({
-      message: 'Intervensi selesai! Atlet siap melanjutkan ke Sesi Fisik Part 2.',
-      type: 'success',
-      key: Date.now(),
-    });
-  };
-
-  const handleSkip = () => {
-    setTimeLeft(0);
-    setIsRunning(false);
-    setIsCompleted(true);
-    setToast({
-      message: 'Intervensi dilewati secara manual oleh peneliti.',
-      type: 'info',
-      key: Date.now(),
-    });
-  };
-
-  const handleLanjutkan = () => {
     router.push('/sesi-2');
   };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  
 
   if (!isHydrated) return null;
 
