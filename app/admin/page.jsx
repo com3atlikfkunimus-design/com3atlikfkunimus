@@ -1200,10 +1200,19 @@ export default function AdminDashboardPage() {
                         </td>
  
                         <td className="py-4 px-4 text-center font-mono text-[10px]">
-                          <div className="flex justify-center items-center gap-1">
-                            <span className="text-slate-400">{a.hop_pre}c</span>
-                            <span className="text-slate-300">→</span>
-                            <span className="text-slate-800 font-bold">{a.hop_post}c</span>
+                          <div className="flex flex-col justify-center items-center gap-1">
+                            <div className="flex gap-1 items-center">
+                              <span className="text-[8px] text-slate-400">PRE:</span>
+                              <span className="text-slate-400">Kn {a.hop_kanan_pre||0}c</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-400">Kr {a.hop_kiri_pre||0}c</span>
+                            </div>
+                            <div className="flex gap-1 items-center">
+                              <span className="text-[8px] font-bold text-slate-800">POST:</span>
+                              <span className="text-slate-800 font-bold">Kn {a.hop_kanan_post||0}c</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-800 font-bold">Kr {a.hop_kiri_post||0}c</span>
+                            </div>
                           </div>
                         </td>
  
