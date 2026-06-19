@@ -634,28 +634,59 @@ export default function Sesi1Page() {
             {/* Input Data Column */}
             <div className="md:col-span-2 space-y-6">
               {/* Score Input */}
-              <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Hasil Skor Tes ({currentTestData.unit}) <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder={`Masukkan hasil ${currentTestData.unit}`}
-                    value={currentTestState.score}
-                    onChange={(e) => handleStateChange('score', e.target.value)}
-                    className="
-                      w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb]
-                      py-2 pr-12 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none
-                      transition-colors duration-200
-                    "
-                  />
-                  <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">
-                    {currentTestData.unit}
-                  </span>
+              {activeTestId === 'hop' ? (
+                <div className="flex gap-4">
+                  <div className="space-y-1 flex-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Kaki Kanan ({currentTestData.unit}) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number" step="0.01"
+                        placeholder="0"
+                        value={currentTestState.scoreKanan}
+                        onChange={(e) => handleStateChange('scoreKanan', e.target.value)}
+                        className="w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb] py-2 pr-8 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none transition-colors duration-200"
+                      />
+                      <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">{currentTestData.unit}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-1 flex-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Kaki Kiri ({currentTestData.unit}) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number" step="0.01"
+                        placeholder="0"
+                        value={currentTestState.scoreKiri}
+                        onChange={(e) => handleStateChange('scoreKiri', e.target.value)}
+                        className="w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb] py-2 pr-8 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none transition-colors duration-200"
+                      />
+                      <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">{currentTestData.unit}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    Hasil Skor Tes ({currentTestData.unit}) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder={`Masukkan hasil ${currentTestData.unit}`}
+                      value={currentTestState.score}
+                      onChange={(e) => handleStateChange('score', e.target.value)}
+                      className="w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb] py-2 pr-12 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none transition-colors duration-200"
+                    />
+                    <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">
+                      {currentTestData.unit}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Hybrid Backup Link Input */}
               <div className="space-y-1 bg-slate-50/50 p-4 rounded-lg border border-slate-200">
