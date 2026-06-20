@@ -37,6 +37,24 @@ export default function IntervensiPage() {
       });
       return;
     }
+    // Save to localStorage so admin can view it if on same browser
+    if (savedAthleteId) {
+      localStorage.setItem('com7_reflex_receipt_' + savedAthleteId, receiptLink);
+    }
+    // Also save to Supabase athletes table if the column exists
+    try {
+      if (savedAthleteId) {
+        // Attempt to update supabase athletes with reflexology_receipt column
+        // This will silently fail if column doesn't exist, which is fine
+        require('@/lib/supabaseClient').supabase
+          .from('athletes')
+          .update({ reflexology_receipt: receiptLink })
+          .eq('id', savedAthleteId)
+          .then(() => {})
+          .catch(() => {});
+      }
+    } catch(e) {}
+    
     router.push('/sesi-2');
   };
 

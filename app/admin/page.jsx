@@ -396,6 +396,11 @@ export default function AdminDashboardPage() {
             cmj_post: cPost,
             hop_pre: hPre,
             hop_post: hPost,
+            hop_kanan_pre: localSesi1.hopKanan || db.hop_kanan_pre || 0,
+            hop_kiri_pre: localSesi1.hopKiri || db.hop_kiri_pre || 0,
+            hop_kanan_post: localSesi2.hopKanan || db.hop_kanan_post || 0,
+            hop_kiri_post: localSesi2.hopKiri || db.hop_kiri_post || 0,
+            reflexology_receipt: db.reflexology_receipt || (typeof window !== 'undefined' ? localStorage.getItem('com7_reflex_receipt_' + db.id) : null),
             hasVideo: !!(localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || localSesi2.sprintLink || db.video_url_sprint_post || db.video_url_cmj_post || db.video_url_hop_post),
             videoUrls: {
               sprint_pre: localSesi1.sprintLink || db.video_url_sprint || null,
@@ -503,6 +508,10 @@ export default function AdminDashboardPage() {
       cmj_post: athlete.cmj_post || 0,
       hop_pre: athlete.hop_pre || 0,
       hop_post: athlete.hop_post || 0,
+      hop_kanan_pre: athlete.hop_kanan_pre || 0,
+      hop_kiri_pre: athlete.hop_kiri_pre || 0,
+      hop_kanan_post: athlete.hop_kanan_post || 0,
+      hop_kiri_post: athlete.hop_kiri_post || 0,
     });
   };
 
@@ -1723,6 +1732,9 @@ export default function AdminDashboardPage() {
 
               <div className="space-y-3 bg-white p-4 rounded border border-slate-200">
                 <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3">Post-Test (Sesi 2)</h4>
+                {selectedAthleteForVideo.reflexology_receipt ? (
+                    <a href={selectedAthleteForVideo.reflexology_receipt} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-emerald-600 hover:underline bg-emerald-50 p-2 rounded border border-emerald-100 transition-colors">📁 Bukti Refleksologi</a>
+                  ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Bukti Refleksologi Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.sprint_post ? (
                   <a href={selectedAthleteForVideo.videoUrls.sprint_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Sprint Belum Ada</span>}
