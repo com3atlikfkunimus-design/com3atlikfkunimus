@@ -401,7 +401,7 @@ export default function AdminDashboardPage() {
             hop_kanan_post: localSesi2.hopKanan || db.hop_kanan_post || 0,
             hop_kiri_post: localSesi2.hopKiri || db.hop_kiri_post || 0,
             reflexology_receipt: db.reflexology_receipt || (typeof window !== 'undefined' ? localStorage.getItem('com7_reflex_receipt_' + db.id) : null),
-            hasVideo: !!(localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || localSesi2.sprintLink || db.video_url_sprint_post || db.video_url_cmj_post || db.video_url_hop_post),
+            hasVideo: !!(localSesi1.sprintLink || db.video_url_sprint || db.video_url_cmj || db.video_url_hop || localSesi2.sprintLink || db.video_url_sprint_post || db.video_url_cmj_post || db.video_url_hop_post || db.reflexology_receipt || (typeof window !== 'undefined' ? localStorage.getItem('com7_reflex_receipt_' + db.id) : null)),
             videoUrls: {
               sprint_pre: localSesi1.sprintLink || db.video_url_sprint || null,
               cmj_pre: localSesi1.cmjLink || db.video_url_cmj || null,
