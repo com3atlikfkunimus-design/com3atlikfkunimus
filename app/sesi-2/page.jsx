@@ -101,9 +101,9 @@ export default function Sesi2Page() {
 
   // Per-test camera/recording state
   const [testStates, setTestStates] = useState({
-    sprint: { isUploading: false, link: '', hasVideo: false, score: '' },
-    cmj: { isUploading: false, link: '', hasVideo: false, score: '' },
-    hop: { isUploading: false, link: '', hasVideo: false, score: '', scoreKanan: '', scoreKiri: '' },
+    sprint: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', isSimulated: false },
+    cmj: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', isSimulated: false },
+    hop: { isRecording: false, recordTime: 0, link: '', hasVideo: false, score: '', scoreKanan: '', scoreKiri: '', isSimulated: false },
   });
 
   // Camera permission and active state
@@ -112,43 +112,130 @@ export default function Sesi2Page() {
 
   // Toast State
   const [toast, setToast] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const handleVideoUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setTestStates(prev => ({
-      ...prev,
-      [activeTestId]: { ...prev[activeTestId], isUploading: true }
-    }));
-
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
-      setUploadProgress(progress);
-      if (progress >= 100) {
-        clearInterval(interval);
-        setTestStates(prev => ({
-          ...prev,
-          [activeTestId]: { ...prev[activeTestId], isUploading: false, hasVideo: true, link: file.name }
-        }));
-        setUploadProgress(0);
-        setToast({
-          message: 'Video berhasil diunggah (simulasi lokal).',
-          type: 'success',
-          key: Date.now()
-        });
-      }
-    }, 300);
-  };
-
 
   // Camera stream references
-  
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
   // Guard (Removed researcher check for athlete convenience)
 
-  // Select test card (Slide 4)
+  // Active Session Timer Countdown
+  useEffect(() => {
+    if (viewState !== 'testing') return;
+
+    if (sessionTime <= 0) {
+      setIsTimeUp(true);
+      stopCamera();
+      
+      // Stop recording if active and switch
+      if (activeTestId && testStates[activeTestId].isRecording) {
+        setTestStates((prev) => ({
+          ...prev,
+          [activeTestId]: { ...prev[activeTestId], isRecording: false, hasVideo: true }
+        }));
+      }
+
+      setToast({
+        message: 'Batas waktu pengerjaan 3 menit telah habis. Kamera dinonaktifkan, silakan gunakan link backup.',
+        type: 'error',
+        key: Date.now(),
+      });
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSessionTime((t) => t - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sessionTime, viewState, activeTestId, testStates]);
+
+
+  // Start Camera Stream
+  const startCamera = async () => {
+    try {
+      setCameraPermissionError(false);
+      if (streamRef.current) stopCamera();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCameraActive(true);
+    } catch (err) {
+      console.warn('[Camera] Access denied or failed.', err);
+      setCameraActive(false);
+      setCameraPermissionError(true);
+      setToast({
+        message: 'Akses kamera ditolak browser. Silakan berikan izin kamera pada browser Anda.',
+        type: 'error',
+        key: Date.now(),
+      });
+    }
+  };
+
+  // Stop Camera Stream to save memory
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraActive(false);
+  };
+
+  // Trigger camera automatically when view changes to testing
+  useEffect(() => {
+    if (viewState === 'testing' && activeTestId && !isTimeUp && !testStates[activeTestId].hasVideo) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+    return () => stopCamera();
+  }, [viewState, activeTestId, isTimeUp]);
+
+  // Recording Timer: Strict 20s Limit
+  useEffect(() => {
+    if (viewState !== 'testing' || !activeTestId) return;
+    const currentState = testStates[activeTestId];
+    if (!currentState.isRecording) return;
+
+    const interval = setInterval(() => {
+      setTestStates((prev) => {
+        const test = prev[activeTestId];
+        const nextTime = test.recordTime + 1;
+
+        if (nextTime >= globalConfig.cameraLimit) {
+          clearInterval(interval);
+          stopCamera();
+          setToast({
+            message: `Batas rekam ${globalConfig.cameraLimit} detik tercapai. Kamera dihentikan, silakan isi link video backup.`,
+            type: 'info',
+            key: Date.now(),
+          });
+          return {
+            ...prev,
+            [activeTestId]: { ...test, isRecording: false, recordTime: globalConfig.cameraLimit, hasVideo: true },
+          };
+        }
+
+        return {
+          ...prev,
+          [activeTestId]: { ...test, recordTime: nextTime },
+        };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [testStates, activeTestId, viewState]);
+
+  // Select test card
   const handleSelectTest = (testId) => {
     setActiveTestId(testId);
     setSessionTime(180);
@@ -186,10 +273,10 @@ export default function Sesi2Page() {
 
   // Stop Official Recording
   const handleStopRekam = () => {
-    
+    stopCamera();
     setTestStates((prev) => ({
       ...prev,
-      [activeTestId]: { ...prev[activeTestId], hasVideo: true },
+      [activeTestId]: { ...prev[activeTestId], isRecording: false, hasVideo: true },
     }));
     setTestStatuses((prev) => ({
       ...prev,
@@ -197,20 +284,23 @@ export default function Sesi2Page() {
     }));
   };
 
-  
+  // Reset / Rekam Ulang ("Ulangi?")
   const handleRetake = () => {
+    if (isTimeUp) return;
     setTestStates((prev) => ({
       ...prev,
-      [activeTestId]: { ...prev[activeTestId], hasVideo: false, link: '' },
+      [activeTestId]: { ...prev[activeTestId], isRecording: false, recordTime: 0, hasVideo: false, link: '' },
     }));
     setTestStatuses((prev) => ({
       ...prev,
       [activeTestId]: 'Belum Mulai',
     }));
+    startCamera();
   };
 
   // Cancel / Kembali
   const handleBackToSelect = () => {
+    stopCamera();
     setViewState('select');
   };
 
@@ -272,16 +362,16 @@ export default function Sesi2Page() {
         <StepIndicator currentStep={4} />
       </div>
 
-      
+      {/* Floating Monospaced Session Timer */}
       {viewState === 'testing' && (
         <div className="fixed top-20 sm:top-24 right-6 z-40 bg-white border border-slate-200 px-4 py-2.5 rounded shadow flex items-center gap-3">
           <div className="flex flex-col">
             <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">Timer Sesi</span>
-            <span className={`font-mono font-bold text-base sm:text-lg tracking-wider leading-none mt-1 ${'text-slate-800'}`}>
+            <span className={`font-mono font-bold text-base sm:text-lg tracking-wider leading-none mt-1 ${isTimeUp ? 'text-red-600 animate-pulse' : 'text-slate-800'}`}>
               {formatTime(sessionTime)}
             </span>
           </div>
-          <div className={`w-2 h-2 rounded-full ${'bg-[#2563eb] animate-ping'}`} />
+          <div className={`w-2 h-2 rounded-full ${isTimeUp ? 'bg-red-500' : 'bg-[#2563eb] animate-ping'}`} />
         </div>
       )}
 
@@ -415,53 +505,128 @@ export default function Sesi2Page() {
             <div className="md:col-span-3 space-y-4">
               <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Umpan Kamera Video</span>
               
-              
-              <div className="relative aspect-video w-full overflow-hidden bg-slate-50 border-2 border-dashed border-slate-300 rounded-[12px] flex flex-col items-center justify-center p-6 text-center">
-                {currentTestState.isUploading ? (
-                  <div className="flex flex-col items-center w-full max-w-xs">
-                    <div className="w-full bg-slate-200 rounded-full h-2.5 mb-4">
-                      <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
-                    </div>
-                    <p className="text-xs font-bold text-slate-800 uppercase">Mengunggah Video... {uploadProgress}%</p>
-                    <p className="text-[10px] text-slate-500 mt-1">Mohon tunggu, jangan tutup halaman ini.</p>
-                  </div>
-                ) : currentTestState.hasVideo ? (
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="relative aspect-video w-full overflow-hidden bg-slate-950 border border-slate-200 rounded-[12px] shadow-none flex items-center justify-center">
+                
+                {/* 1. Camera Permission Block Alert */}
+                {cameraPermissionError && !currentTestState.hasVideo && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white text-slate-800 z-10">
+                    <div className="w-10 h-10 rounded-full border border-red-200 bg-red-50 flex items-center justify-center mb-3 text-red-500">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
                     </div>
-                    <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Video Berhasil Direkam/Diunggah</p>
-                    <a href={currentTestState.link} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 hover:underline">Lihat Video</a>
+                    <p className="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">Izin Kamera Ditolak / Tidak Tersedia</p>
+                    <p className="text-[10px] text-slate-500 max-w-[250px] leading-normal mb-3">
+                      Izin kamera browser diblokir atau kamera tidak terdeteksi. Silakan berikan izin akses atau unggah tautan cadangan di sebelah kanan.
+                    </p>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-1">
+                )}
+
+                {/* 2. Live Video Viewfinder */}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`w-full h-full object-cover rounded-[12px] ${cameraActive && !currentTestState.hasVideo ? 'block' : 'hidden'}`}
+                />
+
+                {/* 3. Completed State Overlay / GDrive replacement */}
+                {(currentTestState.hasVideo || isTimeUp) && (
+                  <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center text-center p-6 z-10 border border-dashed border-slate-200 rounded-[12px]">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
                       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        {isTimeUp ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        )}
+                      </svg>
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                      {isTimeUp ? 'Waktu Sesi Habis (00:00)' : 'Perekaman Selesai & Ditutup'}
+                    </p>
+                    <p className="text-[10px] text-slate-500 max-w-[240px] leading-normal">
+                      {isTimeUp 
+                        ? 'Sesi ditutup paksa untuk menghemat memori. Kamera dinonaktifkan.' 
+                        : `Perekaman otomatis berhenti pada limit 20 detik untuk efisiensi penyimpanan.`}
+                    </p>
+                    <div className="mt-4 px-3 py-1 bg-white border border-slate-200 rounded text-[9px] font-mono text-slate-500">
+                      Format: Semi-Hybrid Backup Aktif
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Connected but idle message */}
+                {!cameraActive && !currentTestState.hasVideo && !cameraPermissionError && !isTimeUp && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                    <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center mx-auto text-slate-500 mb-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-slate-500 max-w-[250px] leading-normal mb-3">Rekam video langsung dari HP kamu atau pilih file. (Maks 10MB)</p>
-                      <label className="cursor-pointer active:scale-95 transition-all px-4 py-2 bg-[#2563eb] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#1d4ed8] transition-colors inline-block shadow">
-                        🎥 Ambil / Unggah Video
-                        <input type="file" accept="video/*" capture="environment" onChange={handleVideoUpload} className="hidden" />
-                      </label>
-                    </div>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Kamera Siap</p>
+                    <p className="text-[9px] text-slate-300">Tekan "Tes Sekarang" untuk memulai perekaman langsung.</p>
                   </div>
+                )}
+
+                {/* Active Recording UI Indicator */}
+                {currentTestState.isRecording && (
+                  <>
+                    <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded border border-red-500/30">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                      <span className="text-[8px] font-black text-white uppercase tracking-wider font-mono">REC</span>
+                    </div>
+                    <div className="absolute top-4 right-4 bg-black/60 px-2.5 py-1 rounded border border-slate-700 font-mono text-[9px] font-bold text-white">
+                      00:{String(currentTestState.recordTime).padStart(2, '0')} / 00:{globalConfig.cameraLimit}
+                    </div>
+                  </>
                 )}
               </div>
 
               {/* Viewfinder Action Buttons */}
               <div className="space-y-3">
-                {currentTestState.hasVideo && (
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleLatihan}
+                    disabled={isTimeUp || currentTestState.hasVideo || currentTestState.isRecording}
+                    className="
+                      flex-1 py-3 border border-slate-200 text-slate-600 rounded-md
+                      text-xs font-bold uppercase tracking-wider
+                      hover:bg-slate-50 transition-colors cursor-pointer active:scale-95 transition-all
+                      disabled:opacity-40 disabled:cursor-not-allowed
+                    "
+                  >
+                    🤸 Latihan Tes
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={currentTestState.isRecording ? handleStopRekam : handleTesSekarang}
+                    disabled={isTimeUp || currentTestState.hasVideo}
+                    className={`
+                      flex-1 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer active:scale-95 transition-all
+                      ${currentTestState.isRecording
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : (isTimeUp || currentTestState.hasVideo)
+                          ? 'bg-slate-100 text-slate-300 border border-slate-200/60 cursor-not-allowed'
+                          : 'bg-[#2563eb] text-white hover:bg-[#1d4ed8]'
+                      }
+                    `}
+                  >
+                    {currentTestState.isRecording ? '■ Hentikan Rekam' : '🎥 Tes Sekarang'}
+                  </button>
+                </div>
+
+                {/* Ulangi? (Reset) Button */}
+                {currentTestState.hasVideo && !isTimeUp && (
                   <button
                     type="button"
                     onClick={handleRetake}
                     className="w-full py-2.5 bg-slate-50 text-slate-600 rounded border border-slate-200 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer active:scale-95 transition-all"
                   >
-                    🔄 Ulangi? (Ganti Video)
+                    🔄 Ulangi? (Rekam Ulang Pengujian)
                   </button>
                 )}
               </div>
@@ -515,11 +680,7 @@ export default function Sesi2Page() {
                       placeholder={`Masukkan hasil ${currentTestData.unit}`}
                       value={currentTestState.score}
                       onChange={(e) => handleStateChange('score', e.target.value)}
-                      className="
-                        w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb]
-                        py-2 pr-12 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none
-                        transition-colors duration-200
-                      "
+                      className="w-full bg-transparent border-b border-slate-200 focus:border-[#2563eb] py-2 pr-12 text-sm text-[#0f172a] placeholder-slate-300 outline-none rounded-none transition-colors duration-200"
                     />
                     <span className="absolute right-0 bottom-2 text-slate-500 text-xs font-bold uppercase">
                       {currentTestData.unit}
@@ -534,7 +695,7 @@ export default function Sesi2Page() {
                   <label className="block text-[10px] font-bold text-slate-800 uppercase tracking-wider">
                     Link Upload GDrive/YT
                   </label>
-                  {currentTestState.hasVideo ? (
+                  {(currentTestState.hasVideo || isTimeUp) ? (
                     <span className="text-[8px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
                       Wajib (Backup)
                     </span>
@@ -545,7 +706,7 @@ export default function Sesi2Page() {
                   )}
                 </div>
                 <p className="text-[9px] text-slate-500 leading-normal mb-3">
-                  Anda bebas memilih: unggah video langsung di sebelah kiri, atau ketik tautan videonya di sini.
+                  Anda bebas memilih: rekam video langsung menggunakan kamera di sebelah kiri, atau ketik tautan videonya di sini.
                 </p>
                 <input
                   type="url"
@@ -573,9 +734,16 @@ export default function Sesi2Page() {
                       return;
                     }
                     
+                    stopCamera();
+                    
                     setTestStatuses((prev) => ({
                       ...prev,
                       [activeTestId]: 'Selesai',
+                    }));
+
+                    setTestStates((prev) => ({
+                      ...prev,
+                      [activeTestId]: { ...prev[activeTestId], isRecording: false },
                     }));
 
                     setToast({
@@ -599,6 +767,7 @@ export default function Sesi2Page() {
           </div>
         </div>
       )}
+
     </ResearchPageLayout>
   );
 }
