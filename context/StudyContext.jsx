@@ -124,11 +124,11 @@ export function StudyProvider({ children }) {
   /**
    * Simpan hasil Sesi 1 fisik ke database & localStorage.
    */
-  async function saveSesi1Results(athleteId, sprint, cmj, hop, sprintLink, cmjLink, hopLink) {
+  async function saveSesi1Results(athleteId, sprint, cmj, hopKanan, hopKiri, sprintLink, cmjLink, hopLink) {
     if (!athleteId) return;
     try {
       const localKey = `com7_athlete_sesi1_${athleteId}`;
-      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hop, sprintLink, cmjLink, hopLink }));
+      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hopKanan, hopKiri, sprintLink, cmjLink, hopLink }));
     } catch (e) {}
 
     try {
@@ -137,7 +137,8 @@ export function StudyProvider({ children }) {
         .update({
           sprint_pre: parseFloat(sprint),
           cmj_pre: parseFloat(cmj),
-          hop_pre: parseFloat(hop),
+          hop_kanan_pre: parseFloat(hopKanan),
+          hop_kiri_pre: parseFloat(hopKiri),
           video_url_sprint: sprintLink || null,
           video_url_cmj: cmjLink || null,
           video_url_hop: hopLink || null,
@@ -152,11 +153,11 @@ export function StudyProvider({ children }) {
   /**
    * Simpan hasil Sesi 2 fisik ke database & localStorage.
    */
-  async function saveSesi2Results(athleteId, sprint, cmj, hop, sprintLink, cmjLink, hopLink) {
+  async function saveSesi2Results(athleteId, sprint, cmj, hopKanan, hopKiri, sprintLink, cmjLink, hopLink) {
     if (!athleteId) return;
     try {
       const localKey = `com7_athlete_sesi2_${athleteId}`;
-      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hop, sprintLink, cmjLink, hopLink }));
+      localStorage.setItem(localKey, JSON.stringify({ sprint, cmj, hopKanan, hopKiri, sprintLink, cmjLink, hopLink }));
     } catch (e) {}
 
     try {
@@ -165,7 +166,8 @@ export function StudyProvider({ children }) {
         .update({
           sprint_post: parseFloat(sprint),
           cmj_post: parseFloat(cmj),
-          hop_post: parseFloat(hop),
+          hop_kanan_post: parseFloat(hopKanan),
+          hop_kiri_post: parseFloat(hopKiri),
           video_url_sprint_post: sprintLink || null,
           video_url_cmj_post: cmjLink || null,
           video_url_hop_post: hopLink || null,

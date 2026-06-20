@@ -329,7 +329,8 @@ export default function Sesi1Page() {
           savedAthleteId,
           testStates.sprint.score,
           testStates.cmj.score,
-          testStates.hop.score,
+          testStates.hop.scoreKanan,
+          testStates.hop.scoreKiri,
           testStates.sprint.link,
           testStates.cmj.link,
           testStates.hop.link
