@@ -7,6 +7,9 @@ import { useStudy } from '@/context/StudyContext';
 import { supabase } from '@/lib/supabaseClient';
 import ResearchPageLayout from '@/components/ResearchPageLayout';
 import Toast from '@/components/Toast';
+import * as XLSX from 'xlsx';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 // Import and register ChartJS components
 import {
@@ -37,7 +40,7 @@ ChartJS.register(
 
 // High-fidelity medical dataset of athletes (n <= 20) with both Pre & Post stats
 const CLINICAL_ATHLETES = [
-  { id: 'a1', name: 'Ahmad Fauzi', researcher: 'Dr. Ahmad Fauzi', age: 21, weight: 72.0, height: 178, bmi: 22.7, bmi_category: 'Normal', abq_pre: 18, abq_post: 11, sprint_pre: 4.65, sprint_post: 4.25, cmj_pre: 38.5, cmj_post: 44.2, hop_pre: 145, hop_post: 165, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
+  { id: 'a1', name: 'Ahmad Fauzi', researcher: 'Dr. Ahmad Fauzi', age: 21, weight: 72.0, height: 178, bmi: 22.7, bmi_category: 'Normal', test_date: '2026-06-01', abq_pre: 18, abq_post: 11, sprint_pre: 4.65, sprint_post: 4.25, cmj_pre: 38.5, cmj_post: 44.2, hop_pre: 145, hop_post: 165, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
   { id: 'a2', name: 'Rian Hidayat', researcher: 'Dr. Ahmad Fauzi', age: 22, weight: 64.0, height: 170, bmi: 22.1, bmi_category: 'Normal', abq_pre: 15, abq_post: 9, sprint_pre: 4.78, sprint_post: 4.42, cmj_pre: 36.0, cmj_post: 42.5, hop_pre: 138, hop_post: 154, video: 'https://www.youtube.com/embed/s3M0XyN6Fsw' },
   { id: 'a3', name: 'Bagus Utomo', researcher: 'Dr. Siti Rahayu', age: 20, weight: 81.2, height: 175, bmi: 26.5, bmi_category: 'Overweight', abq_pre: 21, abq_post: 12, sprint_pre: 4.95, sprint_post: 4.38, cmj_pre: 35.5, cmj_post: 43.0, hop_pre: 132, hop_post: 151, video: 'https://www.youtube.com/embed/U3fWn2-6K4c' },
   { id: 'a4', name: 'Faisal Akbar', researcher: 'Budi Santoso, M.Kes', age: 23, weight: 55.4, height: 172, bmi: 18.7, bmi_category: 'Normal', abq_pre: 12, abq_post: 7, sprint_pre: 4.42, sprint_post: 4.10, cmj_pre: 40.2, cmj_post: 46.5, hop_pre: 152, hop_post: 172, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
@@ -703,51 +706,59 @@ export default function AdminDashboardPage() {
   const avgCmjPre = (athletes.reduce((acc, c) => acc + c.cmj_pre, 0) / totalAthletes).toFixed(1);
   const avgCmjPost = (athletes.reduce((acc, c) => acc + c.cmj_post, 0) / totalAthletes).toFixed(1);
 
-  // CSV EXPORTER ENGINE
-  const handleExportCSV = () => {
+  // EXCEL EXPORTER ENGINE (Per Sheet Per Tanggal)
+  const handleExportExcel = () => {
     try {
       const headers = [
         'Nama Atlet', 'Pemeriksa', 'Umur', 'BMI', 'Kategori BMI', 
         'ABQ Pre-Test', 'ABQ Post-Test', 'Burnout Reduction (%)',
         'Sprint Pre (s)', 'Sprint Post (s)', 'Sprint Improvement (%)',
         'CMJ Pre (cm)', 'CMJ Post (cm)', 'CMJ Difference (cm)',
-        'Hop Pre (cm)', 'Hop Post (cm)'
+        'Hop Pre Kanan (cm)', 'Hop Pre Kiri (cm)', 'Hop Post Kanan (cm)', 'Hop Post Kiri (cm)'
       ];
 
-      const rows = athletes.map((a) => {
-        const burnoutPct = (((a.abq_pre - a.abq_post) / a.abq_pre) * 100).toFixed(1);
-        const sprintPct = (((a.sprint_pre - a.sprint_post) / a.sprint_pre) * 100).toFixed(1);
-        const cmjDiff = (a.cmj_post - a.cmj_pre).toFixed(1);
-        return [
-          a.name, a.researcher, a.age, a.bmi, a.bmi_category,
-          a.abq_pre, a.abq_post, `${burnoutPct}%`,
-          a.sprint_pre, a.sprint_post, `${sprintPct}%`,
-          a.cmj_pre, a.cmj_post, `+${cmjDiff}cm`,
-          a.hop_pre, a.hop_post
-        ];
+      // Kelompokkan berdasarkan tanggal tes (test_date)
+      const groupedData = {};
+      athletes.forEach(a => {
+        const dateKey = a.test_date || new Date().toISOString().split('T')[0];
+        if (!groupedData[dateKey]) groupedData[dateKey] = [];
+        groupedData[dateKey].push(a);
       });
 
-      const csvContent = [
-        headers.join(','),
-        ...rows.map((row) => row.map((val) => `"${val}"`).join(',')),
-      ].join('\n');
+      const wb = XLSX.utils.book_new();
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `Clinical_Trial_COM7_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      Object.keys(groupedData).forEach(dateKey => {
+        const rows = groupedData[dateKey].map((a) => {
+          const burnoutPct = a.abq_pre ? (((a.abq_pre - a.abq_post) / a.abq_pre) * 100).toFixed(1) : 0;
+          const sprintPct = a.sprint_pre ? (((a.sprint_pre - a.sprint_post) / a.sprint_pre) * 100).toFixed(1) : 0;
+          const cmjDiff = (a.cmj_post - a.cmj_pre).toFixed(1);
+          return [
+            a.name, a.researcher, a.age, a.bmi, a.bmi_category,
+            a.abq_pre, a.abq_post, `${burnoutPct}%`,
+            a.sprint_pre, a.sprint_post, `${sprintPct}%`,
+            a.cmj_pre, a.cmj_post, `+${cmjDiff}cm`,
+            a.hop_pre_kanan || a.hop_pre || 0, a.hop_pre_kiri || a.hop_pre || 0, a.hop_post_kanan || a.hop_post || 0, a.hop_post_kiri || a.hop_post || 0
+          ];
+        });
+        const wsData = [headers, ...rows];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, dateKey);
+      });
+
+      XLSX.writeFile(wb, `Clinical_Trial_COM7_Export_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
       setToast({
-        message: 'Database klinis berhasil diekspor ke format CSV.',
+        message: 'Database klinis berhasil diekspor ke format Excel (.xlsx).',
         type: 'success',
         key: Date.now(),
       });
     } catch (err) {
-      console.error('[CSV Export] Failed:', err);
+      console.error('[Excel Export] Failed:', err);
+      setToast({
+        message: 'Gagal mengekspor file Excel.',
+        type: 'error',
+        key: Date.now(),
+      });
     }
   };
 
@@ -783,21 +794,21 @@ export default function AdminDashboardPage() {
   const totalPages = Math.ceil(filteredAthletes.length / itemsPerPage);
 
   // Chart configs
-  const chartLabels = filteredAthletes.slice(0, 6).map((a) => a.name.split(' ')[0]);
+  const chartLabels = filteredAthletes.map((a) => a.name.split(' ')[0]);
 
   const abqChartData = {
     labels: chartLabels,
     datasets: [
       {
         label: 'Pre-Test ABQ',
-        data: filteredAthletes.slice(0, 6).map((a) => a.abq_pre),
+        data: filteredAthletes.map((a) => a.abq_pre),
         backgroundColor: 'rgba(37, 99, 235, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Post-Test ABQ',
-        data: filteredAthletes.slice(0, 6).map((a) => a.abq_post),
+        data: filteredAthletes.map((a) => a.abq_post),
         backgroundColor: 'rgba(16, 185, 129, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
@@ -810,7 +821,7 @@ export default function AdminDashboardPage() {
     datasets: [
       {
         label: 'CMJ Pre (cm)',
-        data: filteredAthletes.slice(0, 6).map((a) => a.cmj_pre),
+        data: filteredAthletes.map((a) => a.cmj_pre),
         borderColor: '#94a3b8',
         backgroundColor: 'transparent',
         tension: 0.35,
@@ -822,7 +833,7 @@ export default function AdminDashboardPage() {
       },
       {
         label: 'CMJ Post (cm)',
-        data: filteredAthletes.slice(0, 6).map((a) => a.cmj_post),
+        data: filteredAthletes.map((a) => a.cmj_post),
         borderColor: '#10b981',
         backgroundColor: 'rgba(16, 185, 129, 0.05)',
         tension: 0.35,
@@ -832,6 +843,46 @@ export default function AdminDashboardPage() {
         pointBorderWidth: 2,
         pointRadius: 5,
         borderWidth: 2,
+      },
+    ],
+  };
+
+  const sprintChartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Sprint Pre (s)',
+        data: filteredAthletes.map((a) => a.sprint_pre),
+        backgroundColor: 'rgba(239, 68, 68, 0.95)',
+        borderRadius: 5,
+        barPercentage: 0.55,
+      },
+      {
+        label: 'Sprint Post (s)',
+        data: filteredAthletes.map((a) => a.sprint_post),
+        backgroundColor: 'rgba(245, 158, 11, 0.95)',
+        borderRadius: 5,
+        barPercentage: 0.55,
+      },
+    ],
+  };
+
+  const hopChartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Hop Pre (cm)',
+        data: filteredAthletes.map((a) => ((a.hop_pre_kanan || a.hop_pre || 0) + (a.hop_pre_kiri || a.hop_pre || 0))/2),
+        backgroundColor: 'rgba(139, 92, 246, 0.95)',
+        borderRadius: 5,
+        barPercentage: 0.55,
+      },
+      {
+        label: 'Hop Post (cm)',
+        data: filteredAthletes.map((a) => ((a.hop_post_kanan || a.hop_post || 0) + (a.hop_post_kiri || a.hop_post || 0))/2),
+        backgroundColor: 'rgba(217, 70, 239, 0.95)',
+        borderRadius: 5,
+        barPercentage: 0.55,
       },
     ],
   };
@@ -945,7 +996,7 @@ export default function AdminDashboardPage() {
           </button>
           
           <button
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             type="button"
             className="
               px-5 py-3 bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1d4ed8] hover:to-[#0284c7] text-white rounded-lg
@@ -1128,6 +1179,7 @@ export default function AdminDashboardPage() {
                 <thead>
                   <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
                     <th className="py-3.5 px-4">Atlet</th>
+                    <th className="py-3.5 px-4">Tanggal Tes</th>
                     <th className="py-3.5 px-4">Pemeriksa</th>
                     <th className="py-3.5 px-4 text-center">Umur / Prodi / BMI</th>
                     <th className="py-3.5 px-4 text-center">Skor ABQ (Pre/Post)</th>
@@ -1183,7 +1235,8 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         
-                        <td className="py-4 px-4 text-slate-500 font-semibold">{a.researcher}</td>
+                        <td className="py-4 px-4 text-slate-500 font-semibold">{a.test_date || '-'}</td>
+                          <td className="py-4 px-4 text-slate-500 font-semibold">{a.researcher}</td>
                         
                         <td className="py-4 px-4 text-center">
                           <div className="font-bold text-slate-800">{a.age} th</div>

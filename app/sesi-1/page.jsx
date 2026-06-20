@@ -725,7 +725,7 @@ export default function Sesi1Page() {
                 <button
                   type="button"
                   onClick={() => {
-                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && !currentTestState.score.trim())) {
+                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && (!currentTestState.score || (typeof currentTestState.score === 'string' && !currentTestState.score.trim())))) {
                       setToast({
                         message: 'Harap isi hasil skor pengujian secara manual terlebih dahulu.',
                         type: 'warning',

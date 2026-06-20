@@ -69,6 +69,7 @@ export default function RegistrasiPage() {
     prodi: '',
     weight: '',
     height: '',
+    test_date: new Date().toISOString().split('T')[0],
   });
   const [errors, setErrors] = useState({});
   const [bmiResult, setBmiResult] = useState(null);
@@ -88,6 +89,7 @@ export default function RegistrasiPage() {
 
   const validate = () => {
     const errs = {};
+    if (!form.test_date) errs.test_date = 'Pilih tanggal pelaksanaan tes';
     if (!form.name.trim() || form.name.trim().length < 3)
       errs.name = 'Nama minimal 3 karakter';
     const age = parseInt(form.age, 10);
@@ -129,6 +131,7 @@ export default function RegistrasiPage() {
       bmi: bmiResult.bmi,
       bmiCategory: bmiResult.category,
       researcher_id: defaultResearcherId,
+      test_date: form.test_date,
     });
 
     router.push('/pre-test');
@@ -175,6 +178,22 @@ export default function RegistrasiPage() {
         <form onSubmit={handleSubmit} noValidate className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-8 md:p-10 shadow-premium relative z-10">
           <div className="space-y-8">
             
+            {/* Tanggal Pelaksanaan */}
+            <div className="space-y-1">
+              <label htmlFor="reg-test-date" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Tanggal Pelaksanaan Tes <span className="text-red-400">*</span>
+              </label>
+              <input
+                id="reg-test-date"
+                name="test_date"
+                type="date"
+                value={form.test_date}
+                onChange={handleChange}
+                className={inputClass('test_date')}
+              />
+              {errors.test_date && <p className="text-xs text-red-400">{errors.test_date}</p>}
+            </div>
+
             {/* Nama Lengkap */}
             <div className="space-y-1">
               <label htmlFor="reg-name" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">

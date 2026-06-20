@@ -103,7 +103,7 @@ export default function Sesi2Page() {
   const [testStates, setTestStates] = useState({
     sprint: { isUploading: false, link: '', hasVideo: false, score: '' },
     cmj: { isUploading: false, link: '', hasVideo: false, score: '' },
-    hop: { isUploading: false, link: '', hasVideo: false, score: '' },
+    hop: { isUploading: false, link: '', hasVideo: false, score: '', scoreKanan: '', scoreKiri: '' },
   });
 
   // Camera permission and active state
@@ -201,7 +201,7 @@ export default function Sesi2Page() {
     router.push('/informed-consent');
   };
 
-  const handleGoToReflexology = async () => {
+  const handleGoToPostTest = async () => {
     try {
       if (savedAthleteId) {
         await saveSesi2Results(
@@ -309,7 +309,7 @@ export default function Sesi2Page() {
             </p>
             {testStatuses.sprint === 'Selesai' && testStatuses.cmj === 'Selesai' && testStatuses.hop === 'Selesai' ? (
               <button
-                onClick={handleGoToReflexology}
+                onClick={handleGoToPostTest}
                 className="
                   w-full sm:w-auto px-6 py-3 bg-[#2563eb] text-white rounded-md
                   font-bold text-xs uppercase tracking-wider
@@ -533,7 +533,7 @@ export default function Sesi2Page() {
                 <button
                   type="button"
                   onClick={() => {
-                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && !currentTestState.score.trim())) {
+                    if ((activeTestId === 'hop' && (!currentTestState.scoreKanan || !currentTestState.scoreKiri)) || (activeTestId !== 'hop' && (!currentTestState.score || (typeof currentTestState.score === 'string' && !currentTestState.score.trim())))) {
                       setToast({
                         message: 'Harap isi hasil skor pengujian secara manual terlebih dahulu.',
                         type: 'warning',

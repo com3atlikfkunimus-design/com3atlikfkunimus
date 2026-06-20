@@ -95,6 +95,7 @@ export function StudyProvider({ children }) {
         .from('athletes')
         .insert({
           researcher_id: profile.researcher_id || (researcher?.id ?? 'd3b07384-d113-49cd-a5d6-89d023b12345'),
+          test_date: profile.test_date || new Date().toISOString().split('T')[0],
           name: String(profile.name).trim(),
           age: parseInt(profile.age, 10),
           prodi: String(profile.prodi).trim(),
