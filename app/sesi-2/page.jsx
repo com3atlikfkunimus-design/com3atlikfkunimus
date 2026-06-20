@@ -112,6 +112,37 @@ export default function Sesi2Page() {
 
   // Toast State
   const [toast, setToast] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleVideoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setTestStates(prev => ({
+      ...prev,
+      [activeTestId]: { ...prev[activeTestId], isUploading: true }
+    }));
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 20;
+      setUploadProgress(progress);
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTestStates(prev => ({
+          ...prev,
+          [activeTestId]: { ...prev[activeTestId], isUploading: false, hasVideo: true, link: file.name }
+        }));
+        setUploadProgress(0);
+        setToast({
+          message: 'Video berhasil diunggah (simulasi lokal).',
+          type: 'success',
+          key: Date.now()
+        });
+      }
+    }, 300);
+  };
+
 
   // Camera stream references
   

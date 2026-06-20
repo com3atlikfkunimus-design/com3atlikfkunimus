@@ -27,6 +27,16 @@ export default function IntervensiPage() {
       });
       return;
     }
+    
+    const lowerLink = receiptLink.toLowerCase();
+    if (!lowerLink.includes('drive.google.com') && !lowerLink.includes('docs.google.com')) {
+      setToast({
+        message: 'Gagal: Tautan yang dimasukkan harus berupa link Google Drive!',
+        type: 'error',
+        key: Date.now(),
+      });
+      return;
+    }
     router.push('/sesi-2');
   };
 
