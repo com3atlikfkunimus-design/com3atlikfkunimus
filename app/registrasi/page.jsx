@@ -67,6 +67,7 @@ export default function RegistrasiPage() {
     name: '',
     age: '',
     prodi: '',
+    prodiLainnya: '',
     weight: '',
     height: '',
     test_date: (() => {
@@ -100,6 +101,7 @@ export default function RegistrasiPage() {
     if (!form.age || isNaN(age) || age < 10 || age > 60)
       errs.age = 'Umur harus antara 10–60 tahun';
     if (!form.prodi) errs.prodi = 'Pilih Program Studi';
+    if (form.prodi === 'Lainnya' && !form.prodiLainnya.trim()) errs.prodiLainnya = 'Tuliskan Program Studi Anda';
     const weight = parseFloat(form.weight);
     if (!form.weight || isNaN(weight) || weight < 20 || weight > 300)
       errs.weight = 'Berat badan harus antara 20–300 kg';
@@ -129,7 +131,7 @@ export default function RegistrasiPage() {
     setAthleteProfile({
       name: form.name.trim(),
       age: parseInt(form.age, 10),
-      prodi: form.prodi,
+      prodi: form.prodi === 'Lainnya' ? form.prodiLainnya.trim() : form.prodi,
       weight: parseFloat(form.weight),
       height: parseFloat(form.height),
       bmi: bmiResult.bmi,
@@ -254,6 +256,24 @@ export default function RegistrasiPage() {
                 ))}
               </select>
               {errors.prodi && <p className="text-xs text-red-400">{errors.prodi}</p>}
+            {form.prodi === 'Lainnya' && (
+              <div className="space-y-1 mt-3 animate-in slide-in-from-top-2 duration-300">
+                <label htmlFor="reg-prodi-lainnya" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Tuliskan Program Studi <span className="text-red-400">*</span>
+                </label>
+                <input
+                  id="reg-prodi-lainnya"
+                  name="prodiLainnya"
+                  type="text"
+                  placeholder="Contoh: Kedokteran Gigi"
+                  value={form.prodiLainnya}
+                  onChange={handleChange}
+                  className={inputClass('prodiLainnya')}
+                />
+                {errors.prodiLainnya && <p className="text-xs text-red-400">{errors.prodiLainnya}</p>}
+              </div>
+            )}
+
             </div>
 
             {/* Berat Badan */}

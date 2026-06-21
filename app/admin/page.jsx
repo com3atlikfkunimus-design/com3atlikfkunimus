@@ -119,6 +119,7 @@ export default function AdminDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [activeTab, setActiveTab] = useState('semua');
+  const [filterDate, setFilterDate] = useState('');
   const [toast, setToast] = useState(null);
   
   const [editingResearcher, setEditingResearcher] = useState(null);
@@ -572,15 +573,25 @@ export default function AdminDashboardPage() {
     }
   };
 
+  
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  };
+
   const handleEditClick = (athlete) => {
     setEditingAthlete(athlete);
     setEditForm({
-      test_date: athlete.test_date || '',
+      test_date: formatDateForInput(athlete.test_date) || '',
       name: athlete.name || '',
       age: athlete.age || '',
       weight: athlete.weight || '',
       height: athlete.height || '',
-      prodi: athlete.prodi || '',
+      prodi: (athlete.prodi && !DEFAULT_PRODI_OPTIONS.includes(athlete.prodi)) ? 'Lainnya' : (athlete.prodi || ''),
+      prodiLainnya: (athlete.prodi && !DEFAULT_PRODI_OPTIONS.includes(athlete.prodi)) ? athlete.prodi : '',
       abq_pre: athlete.abq_pre || 0,
       abq_post: athlete.abq_post || 0,
       sprint_pre: athlete.sprint_pre || 0,
@@ -609,7 +620,7 @@ export default function AdminDashboardPage() {
         age: parseInt(editForm.age, 10) || 0,
         weight: parseFloat(editForm.weight) || 0,
         height: parseFloat(editForm.height) || 0,
-        prodi: editForm.prodi,
+        prodi: editForm.prodi === 'Lainnya' ? editForm.prodiLainnya : editForm.prodi,
         bmi: bmiData ? bmiData.bmi : 0,
         bmi_category: bmiData ? bmiData.category : 'Unknown',
         abq_score: parseInt(editForm.abq_pre, 10) || 0,
