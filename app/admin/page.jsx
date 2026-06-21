@@ -615,7 +615,7 @@ export default function AdminDashboardPage() {
     try {
       const bmiData = calculateBMI(editForm.weight, editForm.height);
       const updates = {
-        test_date: editForm.test_date,
+        test_date: editForm.test_date ? new Date(editForm.test_date).toISOString() : new Date().toISOString(),
         name: editForm.name,
         age: parseInt(editForm.age, 10) || 0,
         weight: parseFloat(editForm.weight) || 0,
@@ -1373,6 +1373,22 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Tanggal:</span>
+                  <input 
+                    type="date" 
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    className="bg-white border border-slate-200 text-xs text-slate-600 rounded-full px-3 py-1.5 outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 transition-all"
+                  />
+                  {filterDate && (
+                    <button onClick={() => setFilterDate('')} className="text-[10px] text-rose-500 hover:bg-rose-50 px-2 py-1 rounded-full font-bold transition-colors">
+                      Reset
+                    </button>
+                  )}
+                </div>
+
                 <div className="relative">
                   <input
                     type="text"
