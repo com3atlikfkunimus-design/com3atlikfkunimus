@@ -857,14 +857,20 @@ export default function AdminDashboardPage() {
   };
 
   const handleSaveConfigs = (e) => {
-    // Fix YouTube URLs before saving
-    const fixedTests = { ...testDetails };
-    Object.keys(fixedTests).forEach(k => { if(fixedTests[k].videoUrl) fixedTests[k].videoUrl = getEmbedUrl(fixedTests[k].videoUrl); });
-    setTestDetails(fixedTests);
-
     e.preventDefault();
+    // Fix YouTube URLs before saving
+    const fixedTests = { ...testConfigs.tests };
+    Object.keys(fixedTests).forEach(k => { 
+      if(fixedTests[k].videoUrl) {
+        fixedTests[k].videoUrl = getEmbedUrl(fixedTests[k].videoUrl); 
+      }
+    });
+    
+    const newConfigs = { ...testConfigs, tests: fixedTests };
+    setTestConfigs(newConfigs);
+
     try {
-      localStorage.setItem('com7_test_configurations', JSON.stringify(testConfigs));
+      localStorage.setItem('com7_test_configurations', JSON.stringify(newConfigs));
       setToast({
         message: 'Konfigurasi materi, urutan, & aturan uji coba berhasil disimpan!',
         type: 'success',
