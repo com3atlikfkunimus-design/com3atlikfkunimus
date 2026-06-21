@@ -495,6 +495,7 @@ export default function AdminDashboardPage() {
   const handleEditClick = (athlete) => {
     setEditingAthlete(athlete);
     setEditForm({
+      test_date: athlete.test_date || '',
       name: athlete.name || '',
       age: athlete.age || '',
       weight: athlete.weight || '',
@@ -523,6 +524,7 @@ export default function AdminDashboardPage() {
     try {
       const bmiData = calculateBMI(editForm.weight, editForm.height);
       const updates = {
+        test_date: editForm.test_date,
         name: editForm.name,
         age: parseInt(editForm.age, 10) || 0,
         weight: parseFloat(editForm.weight) || 0,
@@ -1115,6 +1117,15 @@ export default function AdminDashboardPage() {
             </svg>
             Ekspor Database Excel
           </button>
+          <div className="flex gap-2">
+            <label className="flex-1 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-95 flex justify-center items-center gap-2 border border-emerald-200 shadow-sm">
+              📥 Import CSV
+              <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+            </label>
+            <button onClick={downloadTemplate} className="px-3 py-2 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-95 border border-slate-200 shadow-sm" title="Download Template CSV">
+              📄 Template
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2023,6 +2034,16 @@ export default function AdminDashboardPage() {
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
               <div className="bg-slate-50 p-3 rounded border border-slate-100 space-y-3">
                 <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Data Biografi</span>
+                
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-600">Tanggal & Waktu Tes</label>
+                  <input 
+                    type="datetime-local" 
+                    value={editForm.test_date} 
+                    onChange={(e) => setEditForm({ ...editForm, test_date: e.target.value })} 
+                    className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none" 
+                  />
+                </div>
                 
                 <div className="space-y-1">
                   <label className="text-[9px] font-bold text-slate-600">Nama Lengkap</label>

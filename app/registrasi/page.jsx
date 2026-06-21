@@ -69,7 +69,11 @@ export default function RegistrasiPage() {
     prodi: '',
     weight: '',
     height: '',
-    test_date: new Date().toISOString().split('T')[0],
+    test_date: (() => {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    })(),
   });
   const [errors, setErrors] = useState({});
   const [bmiResult, setBmiResult] = useState(null);
@@ -186,7 +190,7 @@ export default function RegistrasiPage() {
               <input
                 id="reg-test-date"
                 name="test_date"
-                type="date"
+                type="datetime-local"
                 value={form.test_date}
                 onChange={handleChange}
                 className={inputClass('test_date')}
