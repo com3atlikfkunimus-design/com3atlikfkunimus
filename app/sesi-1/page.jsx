@@ -246,7 +246,7 @@ export default function Sesi1Page() {
   // Simulate Practice Test
   const handleLatihan = () => {
     setToast({
-      message: `Memulai Latihan Simulasi untuk ${TEST_DETAILS[activeTestId].title}.`,
+      message: `Memulai Latihan Simulasi untuk ${testDetails[activeTestId].title}.`,
       type: 'info',
       key: Date.now(),
     });
@@ -344,7 +344,7 @@ export default function Sesi1Page() {
 
   if (!isHydrated) return null;
 
-  const currentTestData = activeTestId ? TEST_DETAILS[activeTestId] : null;
+  const currentTestData = activeTestId ? testDetails[activeTestId] : null;
   const currentTestState = activeTestId ? testStates[activeTestId] : null;
 
   return (
@@ -386,7 +386,7 @@ export default function Sesi1Page() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Object.values(TEST_DETAILS).map((test) => {
+            {Object.values(testDetails).map((test) => {
               const status = testStatuses[test.id];
               return (
                 <div
@@ -747,7 +747,7 @@ export default function Sesi1Page() {
                     }));
 
                     setToast({
-                      message: `Hasil skor ${TEST_DETAILS[activeTestId].title} (${activeTestId === 'hop' ? `Kanan ${currentTestState.scoreKanan}, Kiri ${currentTestState.scoreKiri}` : currentTestState.score} ${TEST_DETAILS[activeTestId].unit}) berhasil disimpan!`,
+                      message: `Hasil skor ${testDetails[activeTestId].title} (${activeTestId === 'hop' ? `Kanan ${currentTestState.scoreKanan}, Kiri ${currentTestState.scoreKiri}` : currentTestState.score} ${testDetails[activeTestId].unit}) berhasil disimpan!`,
                       type: 'success',
                       key: Date.now(),
                     });

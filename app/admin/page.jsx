@@ -394,6 +394,7 @@ export default function AdminDashboardPage() {
             height: db.height,
             bmi: db.bmi,
             bmi_category: db.bmi_category,
+            test_date: db.test_date,
             abq_pre: db.abq_score || 0,
             abq_post: localSesi2.abqPostScore ? parseInt(localSesi2.abqPostScore, 10) : (db.abq_post_score || 0),
             sprint_pre: sPre,
@@ -984,13 +985,21 @@ export default function AdminDashboardPage() {
     const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           a.researcher.toLowerCase().includes(searchQuery.toLowerCase());
     
+    let matchesDate = true;
+    if (filterDate) {
+      const aDate = a.test_date ? a.test_date.split('T')[0] : '';
+      matchesDate = aDate === filterDate;
+    }
+
+    const baseMatch = matchesSearch && matchesDate;
+
     if (activeTab === 'normal') {
-      return matchesSearch && a.bmi_category === 'Normal';
+      return baseMatch && a.bmi_category === 'Normal';
     }
     if (activeTab === 'risk') {
-      return matchesSearch && (a.abq_pre >= 18 || a.hop_post < 150);
+      return baseMatch && (a.abq_pre >= 18 || a.hop_post < 150);
     }
-    return matchesSearch;
+    return baseMatch;
   });
 
   // Pagination
@@ -1325,8 +1334,10 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Perbandingan Skor Burnout ABQ</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Analisis visual perbandingan pre-test vs post-test kuesioner ABQ per atlet.</p>
                 </div>
-                <div className="h-64 relative">
+                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
+                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Bar data={abqChartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
 
@@ -1335,8 +1346,10 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan CMJ Vertikal (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
-                <div className="h-64 relative">
+                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
+                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Line data={performanceChartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
               <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
@@ -1344,8 +1357,10 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Sprint (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan kecepatan sprint 10/20 m.</p>
                 </div>
-                <div className="h-64 relative">
+                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
+                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Bar data={sprintChartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
 
@@ -1354,8 +1369,10 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Single Leg Hop (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan stabilitas dan fungsional kaki.</p>
                 </div>
-                <div className="h-64 relative">
+                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
+                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Bar data={hopChartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
 
@@ -2277,6 +2294,18 @@ export default function AdminDashboardPage() {
                     ))}
                   </select>
                 </div>
+                {editForm.prodi === 'Lainnya' && (
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-[9px] font-bold text-slate-600">Tuliskan Program Studi</label>
+                    <input
+                      type="text"
+                      placeholder="Contoh: Kedokteran Gigi"
+                      value={editForm.prodiLainnya || ''}
+                      onChange={(e) => setEditForm({ ...editForm, prodiLainnya: e.target.value })}
+                      className="w-full bg-white border border-slate-200 focus:border-[#2563eb] rounded px-2 py-1.5 text-xs outline-none transition-colors"
+                    />
+                  </div>
+                )}
               </div>
               {[
                 { label: 'ABQ Score', preKey: 'abq_pre', postKey: 'abq_post' },
