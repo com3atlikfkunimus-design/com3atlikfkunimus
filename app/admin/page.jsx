@@ -284,11 +284,38 @@ export default function AdminDashboardPage() {
   const [newAthleteBmi, setNewAthleteBmi] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Auth guard
+  // Auth guard & Auto Logout
   useEffect(() => {
     if (isHydrated && !researcher) {
       router.replace('/login');
     }
+    
+    let timeoutId;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (researcher) {
+          localStorage.removeItem('researcherData');
+          window.location.href = '/login';
+        }
+      }, 15 * 60 * 1000); // 15 mins
+    };
+
+    if (researcher) {
+      window.addEventListener('mousemove', resetTimer);
+      window.addEventListener('keydown', resetTimer);
+      window.addEventListener('scroll', resetTimer);
+      window.addEventListener('click', resetTimer);
+      resetTimer();
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+      window.removeEventListener('click', resetTimer);
+    };
   }, [isHydrated, researcher, router]);
 
   // Real-time BMI calculation for athlete creation form
@@ -394,7 +421,7 @@ export default function AdminDashboardPage() {
             height: db.height,
             bmi: db.bmi,
             bmi_category: db.bmi_category,
-            test_date: db.test_date,
+            test_date: db.created_at || db.test_date,
             abq_pre: db.abq_score || 0,
             abq_post: localSesi2.abqPostScore ? parseInt(localSesi2.abqPostScore, 10) : (db.abq_post_score || 0),
             sprint_pre: sPre,
@@ -617,6 +644,7 @@ export default function AdminDashboardPage() {
       const bmiData = calculateBMI(editForm.weight, editForm.height);
       const updates = {
         test_date: editForm.test_date ? new Date(editForm.test_date).toISOString() : new Date().toISOString(),
+        created_at: editForm.test_date ? new Date(editForm.test_date).toISOString() : new Date().toISOString(),
         name: editForm.name,
         age: parseInt(editForm.age, 10) || 0,
         weight: parseFloat(editForm.weight) || 0,
@@ -714,6 +742,7 @@ export default function AdminDashboardPage() {
           height: parseFloat(athlete.height) || 0,
           prodi: athlete.prodi || '',
           test_date: athlete.test_date || new Date().toISOString().split('T')[0],
+          created_at: athlete.test_date ? new Date(athlete.test_date).toISOString() : new Date().toISOString(),
           bmi: bmi,
           bmi_category: bmiCat,
           abq_score: parseInt(athlete.abq_pre) || 0,

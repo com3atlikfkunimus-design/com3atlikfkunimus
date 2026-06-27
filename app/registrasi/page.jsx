@@ -138,6 +138,7 @@ export default function RegistrasiPage() {
       bmiCategory: bmiResult.category,
       researcher_id: defaultResearcherId,
       test_date: form.test_date,
+      created_at: new Date(form.test_date).toISOString(),
     });
 
     router.push('/pre-test');

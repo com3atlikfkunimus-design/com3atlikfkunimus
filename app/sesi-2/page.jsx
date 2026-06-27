@@ -486,9 +486,9 @@ export default function Sesi2Page() {
               </ul>
             </div>
             {currentTestData.videoUrl && (
-              <div className="w-full sm:w-32 aspect-video shrink-0 bg-slate-900 rounded overflow-hidden relative">
+              <div className="w-full sm:w-80 aspect-video shrink-0 bg-slate-900 rounded-lg overflow-hidden relative shadow-lg">
                 <iframe
-                  src={currentTestData.videoUrl}
+                  src={`${currentTestData.videoUrl}?rel=0`}
                   title={`Tutorial ${currentTestData.title}`}
                   className="w-full h-full object-cover"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
