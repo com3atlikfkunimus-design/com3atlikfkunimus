@@ -133,6 +133,7 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAthleteForVideo, setSelectedAthleteForVideo] = useState(null);
   const [activeConfigTab, setActiveConfigTab] = useState('sprint');
+  const [isZoomedOut, setIsZoomedOut] = useState(false);
 
   // Interactive Walkthrough Tour state variables
   const [isTourOpen, setIsTourOpen] = useState(false);
@@ -1131,7 +1132,7 @@ export default function AdminDashboardPage() {
     ],
   };
 
-  const chartOptions = {
+  const getChartOptions = (type) => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -1158,12 +1159,19 @@ export default function AdminDashboardPage() {
         ticks: { font: { size: 8, weight: '500' }, color: '#64748b' },
       },
       y: {
+        min: 0,
+        max: type === 'sprint' ? 10 : (type === 'cmj' ? 125 : (type === 'abq' ? 30 : 250)),
         grid: { color: '#f8fafc', drawTicks: false },
-        ticks: { font: { size: 8, weight: '500' }, color: '#64748b' },
+        ticks: { 
+          font: { size: 8, weight: '500' }, 
+          color: '#64748b',
+          stepSize: type === 'sprint' ? 2 : (type === 'cmj' ? 25 : (type === 'abq' ? 5 : 50)),
+          callback: function(val) { return type === 'sprint' ? val + 's' : val; }
+        },
         border: { display: false },
       },
     },
-  };
+  });
 
   const getInitials = (fullName) => {
     const parts = fullName.split(' ');
@@ -1356,7 +1364,25 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Side-by-Side Comparative Graphs */}
+                        {/* Side-by-Side Comparative Graphs */}
+            <div className="flex justify-end mb-4 relative z-20">
+              <button 
+                onClick={() => setIsZoomedOut(!isZoomedOut)} 
+                className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2"
+              >
+                {isZoomedOut ? (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                    Tampilan Detail (Bisa di-Scroll)
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" /></svg>
+                    Tampilan Presentasi (Zoom Out)
+                  </>
+                )}
+              </button>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
                 <div className="mb-4">
@@ -1364,8 +1390,8 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Analisis visual perbandingan pre-test vs post-test kuesioner ABQ per atlet.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={abqChartData} options={chartOptions} />
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <Bar data={abqChartData} options={getChartOptions('abq')} />
                   </div>
                 </div>
               </div>
@@ -1376,8 +1402,8 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Line data={performanceChartData} options={chartOptions} />
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <Line data={performanceChartData} options={getChartOptions('cmj')} />
                   </div>
                 </div>
               </div>
@@ -1387,8 +1413,8 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan kecepatan sprint 10/20 m.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={sprintChartData} options={chartOptions} />
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <Bar data={sprintChartData} options={getChartOptions('sprint')} />
                   </div>
                 </div>
               </div>
@@ -1399,8 +1425,8 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan stabilitas dan fungsional kaki.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={hopChartData} options={chartOptions} />
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <Bar data={hopChartData} options={getChartOptions('hop')} />
                   </div>
                 </div>
               </div>
