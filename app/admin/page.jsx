@@ -603,6 +603,24 @@ export default function AdminDashboardPage() {
   };
 
   
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return '-';
+    try {
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return String(dateString).replace("T", " ").substring(0, 16);
+      
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch(e) {
+      return dateString;
+    }
+  };
+
   const formatDateForInput = (dateString) => {
     if (!dateString) return '';
     const d = new Date(dateString);
@@ -1558,7 +1576,7 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         
-                        <td className="py-4 px-4 text-slate-500 font-semibold">{a.test_date ? a.test_date.replace("T", " ") : '-'}</td>
+                        <td className="py-4 px-4 text-slate-500 font-semibold">{formatDateForDisplay(a.test_date)}</td>
                           <td className="py-4 px-4 text-slate-500 font-semibold">{a.researcher}</td>
                         
                         <td className="py-4 px-4 text-center">
