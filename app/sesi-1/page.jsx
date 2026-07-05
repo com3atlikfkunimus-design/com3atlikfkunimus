@@ -27,7 +27,7 @@ const TEST_DETAILS = {
     title: 'Countermovement Jump',
     desc: 'Pengukuran daya ledak (explosive power) otot tungkai vertikal dengan awalan menekuk lutut.',
     unit: 'cm',
-    videoUrl: 'https://www.youtube.com/embed/s3M0XyN6Fsw', // Tutorial CMJ
+    videoUrl: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0', // Tutorial CMJ
     tataCara: [
       'Atlet berdiri tegak di atas matras jump atau area pengukuran dengan tangan di pinggang.',
       'Atlet melakukan gerakan jongkok cepat (countermovement) lalu melompat vertikal setinggi-tingginya.',
@@ -40,7 +40,7 @@ const TEST_DETAILS = {
     title: 'Single Leg Hop',
     desc: 'Pengukuran kekuatan fungsional dan stabilitas tungkai tunggal melalui lompatan horizontal.',
     unit: 'cm',
-    videoUrl: 'https://www.youtube.com/embed/U3fWn2-6K4c', // Tutorial Hop Test
+    videoUrl: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0', // Tutorial Hop Test
     tataCara: [
       'Atlet berdiri dengan satu kaki terpilih di belakang garis start.',
       'Atlet melompat sejauh mungkin ke depan menggunakan kaki tersebut dan harus mendarat stabil dengan kaki yang sama.',
