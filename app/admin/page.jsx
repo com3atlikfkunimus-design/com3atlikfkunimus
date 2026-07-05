@@ -227,29 +227,6 @@ export default function AdminDashboardPage() {
           setTourStep(1);
         }, 1200);
         
-  const datesWithTests = useMemo(() => {
-    const dates = new Set();
-    athletes.forEach(a => {
-      if (a.test_date) dates.add(a.test_date.split('T')[0]);
-    });
-    return dates;
-  }, [athletes]);
-
-  const tileContent = ({ date, view }) => {
-    if (view === 'month') {
-      const d = new Date(date);
-      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-      const dateStr = d.toISOString().split('T')[0];
-      if (datesWithTests.has(dateStr)) {
-        return (
-          <div className="flex justify-center items-center mt-1">
-            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-sm"></div>
-          </div>
-        );
-      }
-    }
-    return null;
-  };
 
   return () => clearTimeout(timer);
       }
@@ -1261,6 +1238,30 @@ export default function AdminDashboardPage() {
   if (!isHydrated || !researcher) {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div></div>;
   }
+
+  const datesWithTests = useMemo(() => {
+    const dates = new Set();
+    athletes.forEach(a => {
+      if (a.test_date) dates.add(a.test_date.split('T')[0]);
+    });
+    return dates;
+  }, [athletes]);
+
+  const tileContent = ({ date, view }) => {
+    if (view === 'month') {
+      const d = new Date(date);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      const dateStr = d.toISOString().split('T')[0];
+      if (datesWithTests.has(dateStr)) {
+        return (
+          <div className="flex justify-center items-center mt-1">
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-sm"></div>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
 
   return (
     <ResearchPageLayout
