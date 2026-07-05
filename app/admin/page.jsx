@@ -124,6 +124,12 @@ export default function AdminDashboardPage() {
   const [athletes, setAthletes] = useState([]);
   const [researchersList, setResearchersList] = useState([]);
   
+  const normalizeUrl = (url) => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return 'https://' + url;
+  };
+
   // Dashboard Sub-menus state
   const [currentMenu, setCurrentMenu] = useState('analytics'); // analytics, database, registration, config
   
@@ -2070,29 +2076,29 @@ export default function AdminDashboardPage() {
               <div className="space-y-3 bg-white p-4 rounded border border-slate-200">
                 <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3">Pre-Test (Sesi 1)</h4>
                 {selectedAthleteForVideo.videoUrls.sprint_pre ? (
-                  <a href={selectedAthleteForVideo.videoUrls.sprint_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.sprint_pre)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Sprint Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.cmj_pre ? (
-                  <a href={selectedAthleteForVideo.videoUrls.cmj_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.cmj_pre)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video CMJ Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.hop_pre ? (
-                  <a href={selectedAthleteForVideo.videoUrls.hop_pre} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.hop_pre)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Hop Belum Ada</span>}
               </div>
 
               <div className="space-y-3 bg-white p-4 rounded border border-slate-200">
                 <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3">Post-Test (Sesi 2)</h4>
                 {selectedAthleteForVideo.reflexology_receipt ? (
-                    <a href={selectedAthleteForVideo.reflexology_receipt} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-emerald-600 hover:underline bg-emerald-50 p-2 rounded border border-emerald-100 transition-colors">📁 Bukti Refleksologi</a>
+                    <a href={normalizeUrl(selectedAthleteForVideo.reflexology_receipt)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-emerald-600 hover:underline bg-emerald-50 p-2 rounded border border-emerald-100 transition-colors">📁 Bukti Refleksologi</a>
                   ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Bukti Refleksologi Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.sprint_post ? (
-                  <a href={selectedAthleteForVideo.videoUrls.sprint_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.sprint_post)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Sprint 10/20m</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Sprint Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.cmj_post ? (
-                  <a href={selectedAthleteForVideo.videoUrls.cmj_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.cmj_post)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video CMJ Vertikal</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video CMJ Belum Ada</span>}
                 {selectedAthleteForVideo.videoUrls.hop_post ? (
-                  <a href={selectedAthleteForVideo.videoUrls.hop_post} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
+                  <a href={normalizeUrl(selectedAthleteForVideo.videoUrls.hop_post)} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-bold text-[#2563eb] hover:underline bg-[#2563eb]/5 p-2 rounded border border-[#2563eb]/10 transition-colors">🎥 Video Single Leg Hop</a>
                 ) : <span className="block text-[10px] font-medium text-slate-400 px-2">Video Hop Belum Ada</span>}
               </div>
             </div>
