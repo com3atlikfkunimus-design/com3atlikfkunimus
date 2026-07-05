@@ -1073,21 +1073,22 @@ export default function AdminDashboardPage() {
   const totalPages = Math.ceil(filteredAthletes.length / itemsPerPage);
 
   // Chart configs
-  const chartLabels = filteredAthletes.map((a) => a.name.split(' ')[0]);
+  const chartAthletes = [...filteredAthletes].reverse();
+  const chartLabels = chartAthletes.map((a) => a.name.split(' ')[0]);
 
   const abqChartData = {
     labels: chartLabels,
     datasets: [
       {
         label: 'Pre-Test ABQ',
-        data: filteredAthletes.map((a) => a.abq_pre),
+        data: chartAthletes.map((a) => a.abq_pre),
         backgroundColor: 'rgba(37, 99, 235, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Post-Test ABQ',
-        data: filteredAthletes.map((a) => a.abq_post),
+        data: chartAthletes.map((a) => a.abq_post),
         backgroundColor: 'rgba(16, 185, 129, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
@@ -1100,7 +1101,7 @@ export default function AdminDashboardPage() {
     datasets: [
       {
         label: 'CMJ Pre (cm)',
-        data: filteredAthletes.map((a) => a.cmj_pre),
+        data: chartAthletes.map((a) => a.cmj_pre),
         borderColor: '#94a3b8',
         backgroundColor: 'transparent',
         tension: 0.35,
@@ -1112,7 +1113,7 @@ export default function AdminDashboardPage() {
       },
       {
         label: 'CMJ Post (cm)',
-        data: filteredAthletes.map((a) => a.cmj_post),
+        data: chartAthletes.map((a) => a.cmj_post),
         borderColor: '#10b981',
         backgroundColor: 'rgba(16, 185, 129, 0.05)',
         tension: 0.35,
@@ -1131,14 +1132,14 @@ export default function AdminDashboardPage() {
     datasets: [
       {
         label: 'Sprint Pre (s)',
-        data: filteredAthletes.map((a) => a.sprint_pre),
+        data: chartAthletes.map((a) => a.sprint_pre),
         backgroundColor: 'rgba(239, 68, 68, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Sprint Post (s)',
-        data: filteredAthletes.map((a) => a.sprint_post),
+        data: chartAthletes.map((a) => a.sprint_post),
         backgroundColor: 'rgba(245, 158, 11, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
@@ -1151,28 +1152,28 @@ export default function AdminDashboardPage() {
     datasets: [
       {
         label: 'Hop Pre Kanan (cm)',
-        data: filteredAthletes.map((a) => a.hop_pre_kanan || a.hop_pre || 0),
+        data: chartAthletes.map((a) => a.hop_pre_kanan || a.hop_pre || 0),
         backgroundColor: 'rgba(139, 92, 246, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Hop Pre Kiri (cm)',
-        data: filteredAthletes.map((a) => a.hop_pre_kiri || a.hop_pre || 0),
+        data: chartAthletes.map((a) => a.hop_pre_kiri || a.hop_pre || 0),
         backgroundColor: 'rgba(167, 139, 250, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Hop Post Kanan (cm)',
-        data: filteredAthletes.map((a) => a.hop_post_kanan || a.hop_post || 0),
+        data: chartAthletes.map((a) => a.hop_post_kanan || a.hop_post || 0),
         backgroundColor: 'rgba(217, 70, 239, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
       {
         label: 'Hop Post Kiri (cm)',
-        data: filteredAthletes.map((a) => a.hop_post_kiri || a.hop_post || 0),
+        data: chartAthletes.map((a) => a.hop_post_kiri || a.hop_post || 0),
         backgroundColor: 'rgba(232, 121, 249, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
@@ -1454,7 +1455,7 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Line data={performanceChartData} options={getChartOptions('cmj')} />
                   </div>
                 </div>
@@ -1465,7 +1466,7 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan kecepatan sprint 10/20 m.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Bar data={sprintChartData} options={getChartOptions('sprint')} />
                   </div>
                 </div>
@@ -1477,7 +1478,7 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan stabilitas dan fungsional kaki.</p>
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
+                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
                   <Bar data={hopChartData} options={getChartOptions('hop')} />
                   </div>
                 </div>
@@ -1580,7 +1581,7 @@ export default function AdminDashboardPage() {
                         <td className="py-4 px-4"><div className="h-6 w-32 bg-slate-100 rounded animate-pulse ml-auto"></div></td>
                       </tr>
                     ))
-                  ) : filteredAthletes.length === 0 ? (
+                  ) : chartAthletes.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="text-center py-12">
                         <div className="flex flex-col items-center justify-center space-y-2">
@@ -1727,7 +1728,7 @@ export default function AdminDashboardPage() {
             {totalPages > 1 && (
               <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-50">
                 <p className="text-[9px] text-slate-400 font-bold tracking-wider">
-                  Menampilkan {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredAthletes.length)} dari {filteredAthletes.length} atlet
+                  Menampilkan {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, chartAthletes.length)} dari {chartAthletes.length} atlet
                 </p>
                 <div className="flex gap-2">
                   <button
