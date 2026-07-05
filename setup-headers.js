@@ -1,4 +1,6 @@
-/** @type {import('next').NextConfig} */
+const fs = require('fs');
+
+const nextConfigContent = `/** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
     return [
@@ -32,3 +34,7 @@ const nextConfig = {
 };
 
 export default nextConfig;
+`;
+
+fs.writeFileSync('next.config.mjs', nextConfigContent, 'utf8');
+console.log("Added security headers to next.config.mjs");

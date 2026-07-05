@@ -40,13 +40,13 @@ ChartJS.register(
 
 // High-fidelity medical dataset of athletes (n <= 20) with both Pre & Post stats
 const CLINICAL_ATHLETES = [
-  { id: 'a1', name: 'Ahmad Fauzi', researcher: 'Dr. Ahmad Fauzi', age: 21, weight: 72.0, height: 178, bmi: 22.7, bmi_category: 'Normal', test_date: '2026-06-01', abq_pre: 18, abq_post: 11, sprint_pre: 4.65, sprint_post: 4.25, cmj_pre: 38.5, cmj_post: 44.2, hop_pre: 145, hop_post: 165, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
+  { id: 'a1', name: 'Ahmad Fauzi', researcher: 'Dr. Ahmad Fauzi', age: 21, weight: 72.0, height: 178, bmi: 22.7, bmi_category: 'Normal', test_date: '2026-06-01', abq_pre: 18, abq_post: 11, sprint_pre: 4.65, sprint_post: 4.25, cmj_pre: 38.5, cmj_post: 44.2, hop_pre: 145, hop_post: 165, video: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0' },
   { id: 'a2', name: 'Rian Hidayat', researcher: 'Dr. Ahmad Fauzi', age: 22, weight: 64.0, height: 170, bmi: 22.1, bmi_category: 'Normal', abq_pre: 15, abq_post: 9, sprint_pre: 4.78, sprint_post: 4.42, cmj_pre: 36.0, cmj_post: 42.5, hop_pre: 138, hop_post: 154, video: 'https://www.youtube.com/embed/s3M0XyN6Fsw' },
   { id: 'a3', name: 'Bagus Utomo', researcher: 'Dr. Siti Rahayu', age: 20, weight: 81.2, height: 175, bmi: 26.5, bmi_category: 'Overweight', abq_pre: 21, abq_post: 12, sprint_pre: 4.95, sprint_post: 4.38, cmj_pre: 35.5, cmj_post: 43.0, hop_pre: 132, hop_post: 151, video: 'https://www.youtube.com/embed/U3fWn2-6K4c' },
-  { id: 'a4', name: 'Faisal Akbar', researcher: 'Budi Santoso, M.Kes', age: 23, weight: 55.4, height: 172, bmi: 18.7, bmi_category: 'Normal', abq_pre: 12, abq_post: 7, sprint_pre: 4.42, sprint_post: 4.10, cmj_pre: 40.2, cmj_post: 46.5, hop_pre: 152, hop_post: 172, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
+  { id: 'a4', name: 'Faisal Akbar', researcher: 'Budi Santoso, M.Kes', age: 23, weight: 55.4, height: 172, bmi: 18.7, bmi_category: 'Normal', abq_pre: 12, abq_post: 7, sprint_pre: 4.42, sprint_post: 4.10, cmj_pre: 40.2, cmj_post: 46.5, hop_pre: 152, hop_post: 172, video: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0' },
   { id: 'a5', name: 'Dedi Prasetyo', researcher: 'Dr. Siti Rahayu', age: 21, weight: 68.0, height: 174, bmi: 22.5, bmi_category: 'Normal', abq_pre: 19, abq_post: 10, sprint_pre: 4.88, sprint_post: 4.30, cmj_pre: 37.0, cmj_post: 43.8, hop_pre: 140, hop_post: 160, video: 'https://www.youtube.com/embed/s3M0XyN6Fsw' },
   { id: 'a6', name: 'Hafiz Kurniawan', researcher: 'Dr. Ahmad Fauzi', age: 22, weight: 70.0, height: 180, bmi: 21.6, bmi_category: 'Normal', abq_pre: 16, abq_post: 8, sprint_pre: 4.52, sprint_post: 4.15, cmj_pre: 39.0, cmj_post: 45.0, hop_pre: 148, hop_post: 168, video: 'https://www.youtube.com/embed/U3fWn2-6K4c' },
-  { id: 'a7', name: 'Wahyu Hidayat', researcher: 'Budi Santoso, M.Kes', age: 24, weight: 75.0, height: 176, bmi: 24.2, bmi_category: 'Normal', abq_pre: 22, abq_post: 13, sprint_pre: 5.10, sprint_post: 4.52, cmj_pre: 34.0, cmj_post: 41.2, hop_pre: 128, hop_post: 146, video: 'https://www.youtube.com/embed/5D1gE7L2KGs' },
+  { id: 'a7', name: 'Wahyu Hidayat', researcher: 'Budi Santoso, M.Kes', age: 24, weight: 75.0, height: 176, bmi: 24.2, bmi_category: 'Normal', abq_pre: 22, abq_post: 13, sprint_pre: 5.10, sprint_post: 4.52, cmj_pre: 34.0, cmj_post: 41.2, hop_pre: 128, hop_post: 146, video: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0' },
   { id: 'a8', name: 'Aditya Putra', researcher: 'Dr. Ahmad Fauzi', age: 20, weight: 66.0, height: 172, bmi: 22.3, bmi_category: 'Normal', abq_pre: 14, abq_post: 8, sprint_pre: 4.58, sprint_post: 4.22, cmj_pre: 38.0, cmj_post: 44.0, hop_pre: 144, hop_post: 162, video: 'https://www.youtube.com/embed/s3M0XyN6Fsw' }
 ];
 
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
         title: '10/20 m Sprint',
         desc: 'Pengukuran kecepatan linier atlet menempuh jarak pendek secara maksimal.',
         unit: 'detik',
-        videoUrl: 'https://www.youtube.com/embed/5D1gE7L2KGs',
+        videoUrl: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0',
         tataCara: [
           'Atlet berdiri di belakang garis start dalam posisi berdiri atau berkuda (standing start).',
           'Peneliti memberikan aba-aba "Bersedia, Siap, Ya!" atau tiupan peluit.',
@@ -845,7 +845,7 @@ export default function AdminDashboardPage() {
       cmj_post: 43.5,
       hop_pre: 140,
       hop_post: 158,
-      video: 'https://www.youtube.com/embed/5D1gE7L2KGs',
+      video: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0',
     };
 
     try {

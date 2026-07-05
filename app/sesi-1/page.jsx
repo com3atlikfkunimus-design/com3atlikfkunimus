@@ -14,7 +14,7 @@ const TEST_DETAILS = {
     title: '10/20 m Sprint',
     desc: 'Pengukuran kecepatan linier atlet menempuh jarak pendek secara maksimal.',
     unit: 'detik',
-    videoUrl: 'https://www.youtube.com/embed/5D1gE7L2KGs', // Tutorial sprint
+    videoUrl: 'https://www.youtube.com/embed/fyzJXYNJkh4?rel=0', // Tutorial sprint
     tataCara: [
       'Atlet berdiri di belakang garis start dalam posisi berdiri atau berkuda (standing start).',
       'Peneliti memberikan aba-aba "Bersedia, Siap, Ya!" atau tiupan peluit.',
