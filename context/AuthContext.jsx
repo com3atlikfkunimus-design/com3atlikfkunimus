@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 /**
  * AuthContext — Global state untuk peneliti yang sedang login.
@@ -21,6 +22,10 @@ const LOCAL_STORAGE_KEY = 'com7_active_researcher';
 export function AuthProvider({ children }) {
   const [researcher, setResearcher] = useState(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  const SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 60 menit timeout
 
   // Hydrate dari localStorage saat pertama mount (client-side only)
   useEffect(() => {
@@ -50,6 +55,8 @@ export function AuthProvider({ children }) {
       id: String(researcherData.id),
       name: String(researcherData.name),
       username: String(researcherData.username),
+      loginAt: Date.now(),
+      lastActive: Date.now()
     };
     setResearcher(sanitized);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sanitized));
@@ -58,11 +65,59 @@ export function AuthProvider({ children }) {
   /**
    * Logout: hapus state dan localStorage.
    */
-  function logout() {
+  const logout = useCallback(() => {
     setResearcher(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
-  }
+    router.push('/login');
+  }, [router]);
 
+  
+  // Auto-logout effect & Activity tracker
+  useEffect(() => {
+    if (!isHydrated || !researcher) return;
+
+    const checkSession = () => {
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const now = Date.now();
+          if (now - parsed.lastActive > SESSION_TIMEOUT_MS) {
+            logout();
+          }
+        }
+      } catch (e) {}
+    };
+
+    const updateActivity = () => {
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.lastActive = Date.now();
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+          setResearcher(parsed);
+        }
+      } catch (e) {}
+    };
+
+    // Check interval
+    const interval = setInterval(checkSession, 60000); // Tiap 1 menit
+    
+    // Update on click/key
+    window.addEventListener('click', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+    
+    // Also update on pathname change
+    updateActivity();
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('click', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+    };
+  }, [isHydrated, researcher?.id, pathname, logout]);
+  
   return (
     <AuthContext.Provider value={{ researcher, login, logout, isHydrated }}>
       {children}

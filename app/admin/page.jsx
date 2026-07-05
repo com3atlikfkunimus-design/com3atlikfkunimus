@@ -107,6 +107,18 @@ export default function AdminDashboardPage() {
   const [newProdiInput, setNewProdiInput] = useState('');
   const router = useRouter();
   const { researcher, isHydrated, logout } = useAuth();
+
+  // PROTECT ROUTE
+  useEffect(() => {
+    if (isHydrated && !researcher) {
+      router.replace('/login');
+    }
+  }, [isHydrated, researcher, router]);
+
+  if (!isHydrated || !researcher) {
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div></div>;
+  }
+
   const { setAthleteProfile } = useStudy();
   
   const [athletes, setAthletes] = useState([]);
