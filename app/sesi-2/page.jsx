@@ -1,4 +1,7 @@
 
+
+'use client';
+
 // Helper to ensure youtube links are in embed format
 const getEmbedUrl = (url) => {
   if (!url) return '';
@@ -21,7 +24,7 @@ const getEmbedUrl = (url) => {
   return url;
 };
 
-'use client';
+
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
