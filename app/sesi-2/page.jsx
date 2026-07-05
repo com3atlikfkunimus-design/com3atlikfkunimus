@@ -1,3 +1,26 @@
+
+// Helper to ensure youtube links are in embed format
+const getEmbedUrl = (url) => {
+  if (!url) return '';
+  if (url.includes('/embed/')) return url;
+  
+  try {
+    let videoId = '';
+    if (url.includes('youtube.com/watch')) {
+      const urlObj = new URL(url);
+      videoId = urlObj.searchParams.get('v');
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  } catch(e) {}
+  
+  return url;
+};
+
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -488,7 +511,7 @@ export default function Sesi2Page() {
             {currentTestData.videoUrl && (
               <div className="w-full sm:w-80 aspect-video shrink-0 bg-slate-900 rounded-lg overflow-hidden relative shadow-lg">
                 <iframe
-                  src={`${currentTestData.videoUrl}?rel=0`}
+                  src={`${getEmbedUrl(currentTestData.videoUrl)}?rel=0`}
                   title={`Tutorial ${currentTestData.title}`}
                   className="w-full h-full object-cover"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
