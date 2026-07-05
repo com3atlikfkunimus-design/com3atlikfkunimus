@@ -136,6 +136,7 @@ export default function AdminDashboardPage() {
   const itemsPerPage = 10;
   const [activeTab, setActiveTab] = useState('semua');
   const [filterDate, setFilterDate] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
   const [toast, setToast] = useState(null);
   
   const [editingResearcher, setEditingResearcher] = useState(null);
@@ -225,7 +226,32 @@ export default function AdminDashboardPage() {
           setIsTourOpen(true);
           setTourStep(1);
         }, 1200);
-        return () => clearTimeout(timer);
+        
+  const datesWithTests = useMemo(() => {
+    const dates = new Set();
+    athletes.forEach(a => {
+      if (a.test_date) dates.add(a.test_date.split('T')[0]);
+    });
+    return dates;
+  }, [athletes]);
+
+  const tileContent = ({ date, view }) => {
+    if (view === 'month') {
+      const d = new Date(date);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      const dateStr = d.toISOString().split('T')[0];
+      if (datesWithTests.has(dateStr)) {
+        return (
+          <div className="flex justify-center items-center mt-1">
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-sm"></div>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
+  return () => clearTimeout(timer);
       }
     }
   }, [isHydrated, researcher]);
@@ -1501,12 +1527,36 @@ export default function AdminDashboardPage() {
                 
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Tanggal:</span>
-                  <input 
-                    type="date" 
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                    className="bg-white border border-slate-200 text-xs text-slate-600 rounded-full px-3 py-1.5 outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 transition-all"
-                  />
+                  
+                  <div className="relative">
+                    <button 
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className="bg-white border border-slate-200 text-xs text-slate-600 rounded-full px-3 py-1.5 outline-none hover:border-[#2563eb] transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      📅 {filterDate ? formatDateForDisplay(filterDate) : 'Semua Tanggal'}
+                    </button>
+                    
+                    {showCalendar && (
+                      <div className="absolute z-50 mt-2 p-2 bg-white rounded-xl shadow-2xl border border-slate-100 left-0 w-[300px]">
+                        <div className="flex justify-between items-center mb-2 px-2">
+                           <span className="text-xs font-bold text-slate-500">Pilih Tanggal</span>
+                           <button onClick={() => setShowCalendar(false)} className="text-slate-400 hover:text-rose-500 font-bold">&times;</button>
+                        </div>
+                        <Calendar 
+                            onChange={(date) => {
+                              const d = new Date(date);
+                              d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                              setFilterDate(d.toISOString().split('T')[0]);
+                              setShowCalendar(false);
+                            }}
+                            value={filterDate ? new Date(filterDate) : null}
+                            tileContent={tileContent}
+                            className="border-none text-xs rounded-lg shadow-sm w-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   {filterDate && (
                     <button onClick={() => setFilterDate('')} className="text-[10px] text-rose-500 hover:bg-rose-50 px-2 py-1 rounded-full font-bold transition-colors">
                       Reset
