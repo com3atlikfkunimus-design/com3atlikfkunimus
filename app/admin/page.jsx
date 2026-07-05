@@ -1208,7 +1208,7 @@ export default function AdminDashboardPage() {
       },
       y: {
         min: 0,
-        max: type === 'sprint' ? 10 : (type === 'cmj' ? 125 : (type === 'abq' ? 30 : 250)),
+        max: type === 'sprint' ? 10 : (type === 'cmj' ? 200 : (type === 'abq' ? 30 : 250)),
         grid: { color: '#f8fafc', drawTicks: false },
         ticks: { 
           font: { size: 8, weight: '500' }, 
