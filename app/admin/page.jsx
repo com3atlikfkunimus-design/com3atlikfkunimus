@@ -1215,17 +1215,7 @@ export default function AdminDashboardPage() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      zoom: {
-        pan: {
-          enabled: true,
-          mode: 'x',
-        },
-        zoom: {
-          wheel: { enabled: true, speed: 0.1 },
-          pinch: { enabled: true },
-          mode: 'x',
-        }
-      },
+      
       legend: {
         position: 'top',
         labels: {
@@ -1245,8 +1235,7 @@ export default function AdminDashboardPage() {
     },
     scales: {
       x: {
-        min: 0,
-        max: 9,
+
         grid: { display: false },
         ticks: { font: { size: 8, weight: '500' }, color: '#64748b' },
       },
@@ -1488,7 +1477,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={abqChartData} options={getChartOptions('abq')} />
+                  <ChartWithScroll data={abqChartData} options={getChartOptions('abq')} chartType="bar" />
                   </div>
                 </div>
               </div>
@@ -1511,7 +1500,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={sprintChartData} options={getChartOptions('sprint')} />
+                  <ChartWithScroll data={sprintChartData} options={getChartOptions('sprint')} chartType="bar" />
                   </div>
                 </div>
               </div>
@@ -1523,7 +1512,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={hopChartData} options={getChartOptions('hop')} />
+                  <ChartWithScroll data={hopChartData} options={getChartOptions('hop')} chartType="bar" />
                   </div>
                 </div>
               </div>
