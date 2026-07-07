@@ -9,7 +9,6 @@ import ResearchPageLayout from '@/components/ResearchPageLayout';
 import Toast from '@/components/Toast';
 import * as XLSX from 'xlsx';
 import Calendar from 'react-calendar';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import 'react-calendar/dist/Calendar.css';
 
 // Import and register ChartJS components
@@ -27,7 +26,7 @@ import {
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 
-ChartJS.register(zoomPlugin, 
+ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
