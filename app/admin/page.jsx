@@ -1104,6 +1104,8 @@ export default function AdminDashboardPage() {
   const chartAthletes = [...filteredAthletes].reverse();
   const chartLabels = chartAthletes.map((a) => a.name.split(' ')[0]);
 
+    const sortedAthletesForCharts = [...filteredAthletes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
   const abqChartData = {
     labels: chartLabels,
     datasets: [
@@ -1473,7 +1475,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={abqChartData} options={getChartOptions('abq')} />
+                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
+                          <Bar data={abqChartData} options={getChartOptions('abq')} />
+                        </div>
                   </div>
                 </div>
               </div>
@@ -1496,7 +1500,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={sprintChartData} options={getChartOptions('sprint')} />
+                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
+                          <Bar data={sprintChartData} options={getChartOptions('sprint')} />
+                        </div>
                   </div>
                 </div>
               </div>
@@ -1508,7 +1514,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Bar data={hopChartData} options={getChartOptions('hop')} />
+                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
+                          <Bar data={hopChartData} options={getChartOptions('hop')} />
+                        </div>
                   </div>
                 </div>
               </div>
