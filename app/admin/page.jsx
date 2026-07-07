@@ -25,6 +25,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import ChartWithScroll from '@/components/ChartWithScroll';
 
 ChartJS.register(
   CategoryScale,
