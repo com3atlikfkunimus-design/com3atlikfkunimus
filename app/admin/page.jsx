@@ -1489,7 +1489,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <Line data={performanceChartData} options={getChartOptions('cmj')} />
+                  <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="line" />
                   </div>
                 </div>
               </div>
