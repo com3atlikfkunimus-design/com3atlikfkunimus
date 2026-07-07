@@ -9,6 +9,7 @@ import ResearchPageLayout from '@/components/ResearchPageLayout';
 import Toast from '@/components/Toast';
 import * as XLSX from 'xlsx';
 import Calendar from 'react-calendar';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import 'react-calendar/dist/Calendar.css';
 
 // Import and register ChartJS components
@@ -26,7 +27,7 @@ import {
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 
-ChartJS.register(
+ChartJS.register(zoomPlugin, 
   CategoryScale,
   LinearScale,
   BarElement,
@@ -1215,6 +1216,17 @@ export default function AdminDashboardPage() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x',
+        },
+        zoom: {
+          wheel: { enabled: true, speed: 0.1 },
+          pinch: { enabled: true },
+          mode: 'x',
+        }
+      },
       legend: {
         position: 'top',
         labels: {
@@ -1234,6 +1246,8 @@ export default function AdminDashboardPage() {
     },
     scales: {
       x: {
+        min: 0,
+        max: 9,
         grid: { display: false },
         ticks: { font: { size: 8, weight: '500' }, color: '#64748b' },
       },
@@ -1475,9 +1489,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
-                          <Bar data={abqChartData} options={getChartOptions('abq')} />
-                        </div>
+                  <Bar data={abqChartData} options={getChartOptions('abq')} />
                   </div>
                 </div>
               </div>
@@ -1500,9 +1512,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
-                          <Bar data={sprintChartData} options={getChartOptions('sprint')} />
-                        </div>
+                  <Bar data={sprintChartData} options={getChartOptions('sprint')} />
                   </div>
                 </div>
               </div>
@@ -1514,9 +1524,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
                   <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <div style={{ minWidth: `${Math.max(100, (sortedAthletesForCharts.length / 10) * 100)}%`, height: '100%' }}>
-                          <Bar data={hopChartData} options={getChartOptions('hop')} />
-                        </div>
+                  <Bar data={hopChartData} options={getChartOptions('hop')} />
                   </div>
                 </div>
               </div>
