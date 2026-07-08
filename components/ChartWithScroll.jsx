@@ -48,12 +48,12 @@ const ChartWithScroll = ({ data, options, chartType, isZoomedOut }) => {
   const chartWidth = isZoomedOut ? 100 : Math.max(100, (len / 10) * 100);
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col h-full">
       {/* HTML Legend (Static, tidak ikut scroll) */}
       {data && data.datasets && (
-        <div className="flex justify-center items-center gap-6 mb-2">
+        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 mb-4">
           {data.datasets.map((ds, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-[10px] font-semibold text-slate-600">
+            <div key={idx} className="flex items-center gap-2 text-[10px] font-semibold text-slate-600 whitespace-nowrap">
               <span 
                 className="w-3 h-3 rounded-full inline-block" 
                 style={{ 
@@ -68,7 +68,7 @@ const ChartWithScroll = ({ data, options, chartType, isZoomedOut }) => {
       )}
 
       {/* Chart Area */}
-      <div className="relative w-full h-64 flex bg-white">
+      <div className="relative w-full flex-1 flex bg-white min-h-[250px]">
         {/* Y-Axis Frozen Pane */}
         <div className="absolute top-0 left-0 h-full w-[40px] z-10 bg-white pointer-events-none pb-[28px] border-r border-slate-300">
           {emptyData && <ChartComponent data={emptyData} options={yAxisOptions} />}

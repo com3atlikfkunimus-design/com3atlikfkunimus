@@ -1471,41 +1471,41 @@ export default function AdminDashboardPage() {
               </button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Perbandingan Skor Burnout ABQ</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Analisis visual perbandingan pre-test vs post-test kuesioner ABQ per atlet.</p>
                 </div>
-                <div className="h-64 relative w-full">
+                <div className="flex-1 relative w-full min-h-[300px]">
                   <ChartWithScroll data={abqChartData} options={getChartOptions('abq')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
 
-              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan CMJ Vertikal (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
-                <div className="h-64 relative w-full">
+                <div className="flex-1 relative w-full min-h-[300px]">
                   <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="line" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
-              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Sprint (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan kecepatan sprint 10/20 m.</p>
                 </div>
-                <div className="h-64 relative w-full">
+                <div className="flex-1 relative w-full min-h-[300px]">
                   <ChartWithScroll data={sprintChartData} options={getChartOptions('sprint')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
 
-              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+              <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
                 <div className="mb-4">
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Single Leg Hop (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan stabilitas dan fungsional kaki.</p>
                 </div>
-                <div className="h-64 relative w-full">
+                <div className="flex-1 relative w-full min-h-[300px]">
                   <ChartWithScroll data={hopChartData} options={getChartOptions('hop')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
@@ -1516,7 +1516,7 @@ export default function AdminDashboardPage() {
 
         {/* ── Tab 2: Rekam Medis Atlet ── */}
         {currentMenu === 'database' && (
-          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
             <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-6 pb-6 border-b border-slate-50">
               <div>
                 <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Database Rekam Medis Atlet</h2>
@@ -1805,7 +1805,7 @@ export default function AdminDashboardPage() {
         {currentMenu === 'registration' && (
           <div className="space-y-8">
             {/* Registrasi Akun Peneliti Baru */}
-            <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+            <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
               <div className="mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb]" />
                 <div>
@@ -1897,7 +1897,7 @@ export default function AdminDashboardPage() {
 
         {/* ── Tab 4: Aturan & Protokol ── */}
         {currentMenu === 'config' && (
-          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
+          <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
             <div className="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
               <div>
                 <div className="flex items-center gap-1.5">
