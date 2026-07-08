@@ -76,7 +76,7 @@ const ChartWithScroll = ({ data, options, chartType, isZoomedOut }) => {
         
         {/* Scrollable Chart */}
         <div className="w-full h-full overflow-x-auto overflow-y-hidden pl-[40px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent pb-2">
-          <div style={{ width: \`\${chartWidth}%\`, minWidth: '100%', height: '100%' }}>
+          <div style={{ width: `${chartWidth}%`, minWidth: '100%', height: '100%' }}>
             {data && <ChartComponent data={data} options={chartOptions} />}
           </div>
         </div>
