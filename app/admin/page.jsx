@@ -1140,7 +1140,7 @@ export default function AdminDashboardPage() {
       {
         label: 'CMJ Post (cm)',
         data: chartAthletes.map((a) => a.cmj_post),
-        backgroundColor: 'rgba(16, 185, 129, 0.95)',
+        backgroundColor: 'rgba(5, 150, 105, 0.95)',
         borderRadius: 5,
         barPercentage: 0.55,
       },
