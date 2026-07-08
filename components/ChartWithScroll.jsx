@@ -46,7 +46,7 @@ const ChartWithScroll = ({ data, options, chartType }) => {
   return (
     <div className="relative w-full h-64 flex bg-white">
       {/* Y-Axis Frozen Pane */}
-      <div className="absolute top-0 left-0 h-full w-[40px] z-10 bg-white pointer-events-none pb-[28px]">
+      <div className="absolute top-0 left-0 h-full w-[40px] z-10 bg-white pointer-events-none pb-[28px] border-r border-slate-300">
         {emptyData && <ChartComponent data={emptyData} options={yAxisOptions} />}
       </div>
       
