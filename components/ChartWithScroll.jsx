@@ -58,7 +58,7 @@ const ChartWithScroll = ({ data, options, chartType, isZoomedOut }) => {
                 className="w-3 h-3 rounded-full inline-block" 
                 style={{ 
                   backgroundColor: ds.backgroundColor || ds.borderColor || '#cbd5e1',
-                  border: ds.borderColor ? \`1px solid \${ds.borderColor}\` : 'none'
+                  border: ds.borderColor ? `1px solid ${ds.borderColor}` : 'none'
                 }}
               />
               {ds.label}
