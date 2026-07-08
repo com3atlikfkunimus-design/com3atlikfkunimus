@@ -1487,7 +1487,7 @@ export default function AdminDashboardPage() {
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
                 <div className="flex-1 relative w-full min-h-[300px]">
-                  <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="line" isZoomedOut={isZoomedOut} />
+                  <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
               <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10 flex flex-col h-full">
