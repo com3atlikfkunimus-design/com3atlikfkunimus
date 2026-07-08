@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 
 // Wrapper untuk Chart yang bisa di scroll tapi Y Axis diam
-const ChartWithScroll = ({ data, options, chartType }) => {
+const ChartWithScroll = ({ data, options, chartType, isZoomedOut }) => {
   const ChartComponent = chartType === 'line' ? Line : Bar;
   
   // Create an empty dataset to render ONLY the Y-Axis in the frozen pane
@@ -41,7 +41,7 @@ const ChartWithScroll = ({ data, options, chartType }) => {
   };
 
   const len = data && data.labels ? data.labels.length : 10;
-  const chartWidth = Math.max(100, (len / 10) * 100);
+  const chartWidth = isZoomedOut ? 100 : Math.max(100, (len / 10) * 100);
 
   return (
     <div className="relative w-full h-64 flex bg-white">

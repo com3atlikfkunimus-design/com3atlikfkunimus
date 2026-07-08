@@ -1476,10 +1476,8 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Perbandingan Skor Burnout ABQ</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Analisis visual perbandingan pre-test vs post-test kuesioner ABQ per atlet.</p>
                 </div>
-                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(filteredAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <ChartWithScroll data={abqChartData} options={getChartOptions('abq')} chartType="bar" />
-                  </div>
+                <div className="h-64 relative w-full">
+                  <ChartWithScroll data={abqChartData} options={getChartOptions('abq')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
 
@@ -1488,10 +1486,8 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan CMJ Vertikal (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan daya ledak vertikal (Countermovement Jump) atlet.</p>
                 </div>
-                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="line" />
-                  </div>
+                <div className="h-64 relative w-full">
+                  <ChartWithScroll data={performanceChartData} options={getChartOptions('cmj')} chartType="line" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
               <div className="glass-panel border border-[#e2e8f0]/80 rounded-2xl p-6 shadow-premium relative z-10">
@@ -1499,10 +1495,8 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Sprint (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan pemulihan kecepatan sprint 10/20 m.</p>
                 </div>
-                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <ChartWithScroll data={sprintChartData} options={getChartOptions('sprint')} chartType="bar" />
-                  </div>
+                <div className="h-64 relative w-full">
+                  <ChartWithScroll data={sprintChartData} options={getChartOptions('sprint')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
 
@@ -1511,10 +1505,8 @@ export default function AdminDashboardPage() {
                   <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Peningkatan Single Leg Hop (Pre vs Post)</h2>
                   <p className="text-[9px] text-slate-400 mt-0.5">Pemetaan stabilitas dan fungsional kaki.</p>
                 </div>
-                <div className="h-64 relative w-full overflow-x-auto overflow-y-hidden" style={{ cursor: 'grab' }}>
-                  <div style={{ minWidth: isZoomedOut ? '100%' : `${Math.max(chartAthletes.length * 60, 100)}%`, height: '100%' }}>
-                  <ChartWithScroll data={hopChartData} options={getChartOptions('hop')} chartType="bar" />
-                  </div>
+                <div className="h-64 relative w-full">
+                  <ChartWithScroll data={hopChartData} options={getChartOptions('hop')} chartType="bar" isZoomedOut={isZoomedOut} />
                 </div>
               </div>
 
